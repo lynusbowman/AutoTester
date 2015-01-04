@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration name="AutoTester" status="info">
+  <Properties>
+    <Property name="log-path">/home/lynus/private/autotester/log</Property>
+  </Properties>
+  <Appenders>
+    <RollingFile name="file-log" fileName="${log-path}/app.log" filePattern="${log-path}/app-%d{yyyy-MM-dd}.log" append="true">
+      <PatternLayout>
+        <pattern>[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} %c{1} - %msg%n</pattern>
+      </PatternLayout>
+      <Policies>
+        <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+      </Policies>
+    </RollingFile> 
+  </Appenders>
+  <Loggers>
+    <Logger name="com.bowman.autotester" level="info" additivity="false">
+      <appender-ref ref="file-log" level="info"/>
+    </Logger>
+  </Loggers>
+</Configuration>
