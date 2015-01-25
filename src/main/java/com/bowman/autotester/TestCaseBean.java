@@ -20,6 +20,7 @@ import javax.ejb.Stateless;
 import javax.ejb.Schedule;
 import javax.persistence.PersistenceContext;
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
 import javax.persistence.NoResultException;
@@ -1081,6 +1082,29 @@ public class TestCaseBean {
     } 
     
     /**
+    * Delete old test runs
+    */
+    public void deleteOldTestRuns() {
+        
+        try {
+
+            StringBuilder sb = new StringBuilder();
+            sb.append("deleteOldTestRuns()");
+            logger.debug(sb);
+
+            Query query = em.createNativeQuery("DELETE FROM TEST_RUN WHERE run_date < {fn TIMESTAMPADD(SQL_TSI_MONTH, -1, CURRENT_TIMESTAMP)} ");
+            query.executeUpdate();
+            
+        }
+        catch (Exception ex) {
+            
+            logger.error("deleteOldTestRuns()", ex);
+            
+        }
+        
+    }     
+    
+    /**
     * Get test run logs for test run with ID from DB
     * @param iTestRunID group FK
     * @return List of TestRunLog 
@@ -1224,6 +1248,60 @@ public class TestCaseBean {
     }   
     
     /**
+    * Delete old test runs logs
+    */
+    public void deleteOldTestRunLogs() {
+        
+        try {
+
+            StringBuilder sb = new StringBuilder();
+            sb.append("deleteOldTestRunLogs()");
+            logger.debug(sb);
+
+            Query query = em.createNativeQuery("DELETE FROM TEST_RUN_LOG WHERE log_date < {fn TIMESTAMPADD(SQL_TSI_MONTH, -1, CURRENT_TIMESTAMP)} ");
+            query.executeUpdate();
+            
+        }
+        catch (Exception ex) {
+            
+            logger.error("deleteOldTestRunLogs()", ex);
+            
+        }
+        
+    }  
+    
+    /**
+    * Get test data for given test case and environment
+    * @param iTestRunID test run ID
+    * @param sEnvironment environment
+    * @return List of TestData 
+    */
+    public List<TestData> getTestData(int iTestRunID, String sEnvironment) {
+        
+        try {
+            
+            StringBuilder sb = new StringBuilder();
+            sb.append("getTestData() - params iTestRunID:").append(iTestRunID).append(", sEnvironment:").append(sEnvironment);
+            logger.debug(sb);
+            
+            TestRun testRun = em.find(TestRun.class, iTestRunID);
+            TypedQuery<TestData> query = em.createNamedQuery("getTestData", TestData.class);
+            query.setParameter("test_case_id", testRun.getTestCase().getID());
+            query.setParameter("environment", sEnvironment);
+            
+            return query.getResultList();
+            
+        }
+        catch(Exception ex) {
+            
+            logger.error("getTestData()", ex);
+            return null;
+            
+        }
+        
+    }       
+    
+    /**
     * Run auto test cases
     */
     @Schedule(hour = "17", minute = "15")
@@ -1231,7 +1309,7 @@ public class TestCaseBean {
         
         try {
 
-            logger.debug("runAutoTestCases()");
+            logger.info("runAutoTestCases()");
             
             // get auto test cases
             List<TestCase> lstTestCases = getAutoTestCases();
@@ -1348,12 +1426,13 @@ public class TestCaseBean {
             sb.append(", iTestRunID:").append(iTestRunID).append(", sEnvironment:").append(sEnvironment);
             logger.debug(sb);
                       
-            GroovyScriptEngine gse = new GroovyScriptEngine(sDirectory);
+            GroovyScriptEngine gse = new GroovyScriptEngine(sDirectory);            
             Binding binding = new Binding();            
             
             // run script
             binding.setVariable("logID", iTestRunID);
             binding.setVariable("env", sEnvironment);
+            
             gse.run(sFilename, binding);
             int iResult = (Integer) binding.getVariable("result");
             
@@ -1366,14 +1445,14 @@ public class TestCaseBean {
                 return Status.PASSED.toString();
             else if (iResult == 0)
                 return Status.FAILED.toString();
-            else 
-                return Status.NOTRUN.toString();
+            
+            return Status.FAILED.toString();
             
         }
         catch (Exception ex) {
             
             logger.error("runTestScript()", ex);
-            return Status.NOTRUN.toString();
+            return Status.FAILED.toString();
             
         }
         
@@ -1462,6 +1541,29 @@ public class TestCaseBean {
             
         }
         
-    }         
+    }  
+    
+    /**
+    * Execute maintenance
+    */
+    @Schedule(hour = "23", minute = "15")
+    public void execMaintenance() {
+        
+        try {
+
+            logger.info("execMaintenance()");
+            
+            // delete old test runs
+            deleteOldTestRunLogs();
+            deleteOldTestRuns();
+
+        }
+        catch (Exception ex) {
+            
+            logger.error("execMaintenance()", ex);
+            
+        }
+        
+    }            
     
 }

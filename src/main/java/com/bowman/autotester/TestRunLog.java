@@ -21,6 +21,7 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.GenerationType;
 import javax.persistence.SequenceGenerator;
+import javax.persistence.Lob;
 
 /**
 * Test run log entity
@@ -59,7 +60,8 @@ public class TestRunLog {
     @Column(name = "RESULT", length = 10)
     private String sResult;
     
-    @Column(name = "LOG", length = 4000)
+    @Lob
+    @Column(name = "LOG")
     private String sLog;
     
     /**********************************
@@ -82,7 +84,7 @@ public class TestRunLog {
     * @param testRun TEST_RUN_FK - integer, foreign key to TEST_RUN.ID, not null
     * @param logDate LOG_DATE - date
     * @param sResult RESULT - varchar, result
-    * @param sLog LOG - varchar
+    * @param sLog LOG - CLOB
     * */     
     public TestRunLog(TestRun testRun, Date logDate, String sResult, String sLog) {
         

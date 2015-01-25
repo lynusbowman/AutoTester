@@ -33,7 +33,7 @@ import javax.persistence.SequenceGenerator;
 @SequenceGenerator(name = "TEST_CASE_GROUP_SEQ", allocationSize = 1)
 @NamedQueries({
     @NamedQuery(name = "getAllTestCaseGroups", 
-                query = "SELECT a FROM TestCaseGroup a"),
+                query = "SELECT a FROM TestCaseGroup a ORDER BY a.sTitle"),
     @NamedQuery(name = "getTestCaseGroup",
                 query = "SELECT a FROM TestCaseGroup a WHERE a.sTitle = :title")
 })        

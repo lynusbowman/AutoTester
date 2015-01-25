@@ -1296,7 +1296,7 @@ public class AutoTesterUI extends UI
                 txtTestCaseGroupCreateDate.setValue(dateFormat.format(testCaseGroup.getCreateDate()));
             
                 // reload test cases
-                loadTestCases();
+                //loadTestCases();
                 
                 // enable update/delete
                 btnUpdateTestCaseGroup.setEnabled(true);
@@ -1372,8 +1372,8 @@ public class AutoTesterUI extends UI
             boolean bUpdated = testCaseBean.updateTestCaseGroup(iID, sTitle, sDescription, sDirectory);
             
             // reload test cases
-            if (bUpdated)
-                loadTestCases();           
+            //if (bUpdated)
+            //    loadTestCases();           
             
         }             
         catch (Exception ex) {
@@ -1414,7 +1414,7 @@ public class AutoTesterUI extends UI
             if (bDeleted) {
             
                 resetTestCaseGroupDetail();
-                loadTestCases();
+                //loadTestCases();
             
             }
             
@@ -1485,7 +1485,7 @@ public class AutoTesterUI extends UI
                 txtTestCaseCreateDate.setValue(dateFormat.format(testCase.getCreateDate()));
             
                 // reload test cases
-                loadTestCases();
+                //loadTestCases();
                 
                 // enable update/delete
                 btnUpdateTestCase.setEnabled(true);
@@ -1571,8 +1571,8 @@ public class AutoTesterUI extends UI
             boolean bUpdated = testCaseBean.updateTestCase(iID, sTitle, sDescription, sFilename, iGroupID, bAuto);
             
             // reload test cases
-            if (bUpdated)
-                loadTestCases();
+            //if (bUpdated)
+            //    loadTestCases();
             
         }             
         catch (Exception ex) {
@@ -1615,7 +1615,7 @@ public class AutoTesterUI extends UI
                 resetTestCaseGroupDetail();
                 resetTestCaseDetail();
                 idxTestCaseRuns.removeAllItems();
-                loadTestCases();
+                //loadTestCases();
                 
             }
             

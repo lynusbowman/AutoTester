@@ -1,16 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration name="AutoTester" status="info">
   <Properties>
-    <Property name="log-path">/home/lynus/private/autotester/log</Property>
+    <!--PROD-->
+    <!--Property name="log-path">/projects/var/log/autotester</Property-->
+    <!--DEV-->
+    <Property name="log-path">d:/private_files/prace/kody/Java/mavenproject1/AutoTester/target/log</Property>
   </Properties>
   <Appenders>
-    <RollingFile name="file-log" fileName="${log-path}/app.log" filePattern="${log-path}/app-%d{yyyy-MM-dd}.log" append="true">
+    <RollingFile name="file-log" fileName="${log-path}/app.log" filePattern="${log-path}/app-%d{yyyy-MM-dd}.log" append="false">
       <PatternLayout>
         <pattern>[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} %c{1} - %msg%n</pattern>
       </PatternLayout>
       <Policies>
         <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
       </Policies>
+      <DefaultRolloverStrategy max="30"/>
     </RollingFile> 
   </Appenders>
   <Loggers>

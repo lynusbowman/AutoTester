@@ -35,7 +35,7 @@ import javax.persistence.SequenceGenerator;
 @SequenceGenerator(name = "TEST_CASE_SEQ", allocationSize = 1)
 @NamedQueries({
     @NamedQuery(name = "getAllTestCases",
-                query = "SELECT a FROM TestCase a"),
+                query = "SELECT a FROM TestCase a ORDER BY a.sTitle"),
     @NamedQuery(name = "getTestCase",
                 query = "SELECT a FROM TestCase a WHERE a.sTitle = :title"),
     @NamedQuery(name = "getTestCasesInGroup",
@@ -54,7 +54,7 @@ public class TestCase {
     @Column(name = "ID")
     private int iID;
     
-    @Column(name = "TITLE", nullable = false, length = 40, unique = true)
+    @Column(name = "TITLE", nullable = false, length = 100, unique = true)
     private String sTitle;
     
     @Column(name = "DESCRIPTION", nullable = false, length = 400)
@@ -109,7 +109,7 @@ public class TestCase {
     * query - getAllTestCases   
     * query - getTestCase
     * query - getTestCasesInGroup
-    * @param sTitle TITLE - varchar(40), not null, unique
+    * @param sTitle TITLE - varchar(100), not null, unique
     * @param sDescription DESCRIPTION - varchar(400), not null
     * @param sFilename FILENAME - varchar(100), not null, unique
     * @param testCaseGroup GROUP_FK - integer, foreign key to TEST_CASE_GROUP.ID, not null

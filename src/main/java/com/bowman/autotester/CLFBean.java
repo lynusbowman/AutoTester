@@ -1175,7 +1175,7 @@ public class CLFBean {
                     
             sbQuery.append("AND b.x_site_part2status_su = c.objid AND b.x_site_part2resource = d.objid(+) ");
             sbQuery.append("AND b.objid = e.fa_site_part2site_part(+) AND e.fa_site_part2flex_defn = f.objid(+) ");
-            sbQuery.append("ORDER BY 1,3,6");
+            sbQuery.append("ORDER BY 1,4,3,6");
             
             Statement stmt = con.createStatement();
             ResultSet rs = stmt.executeQuery(sbQuery.toString());
@@ -1282,7 +1282,7 @@ public class CLFBean {
                     
             sbQuery.append("AND b.x_site_part2status_su = c.objid AND b.x_site_part2resource = d.objid(+) ");
             sbQuery.append("AND b.objid = e.fa_site_part2site_part(+) AND e.fa_site_part2flex_defn = f.objid(+) ");
-            sbQuery.append("ORDER BY 1,3,6");
+            sbQuery.append("ORDER BY 1,4,3,6");
             
             Statement stmt = con.createStatement();
             ResultSet rs = stmt.executeQuery(sbQuery.toString());
@@ -1389,7 +1389,7 @@ public class CLFBean {
                     
             sbQuery.append("AND b.x_site_part2status_su = c.objid AND b.x_site_part2resource = d.objid(+) ");
             sbQuery.append("AND b.objid = e.fa_site_part2site_part(+) AND e.fa_site_part2flex_defn = f.objid(+) ");
-            sbQuery.append("ORDER BY 1,3,6");
+            sbQuery.append("ORDER BY 1,4,3,6");
             
             Statement stmt = con.createStatement();
             ResultSet rs = stmt.executeQuery(sbQuery.toString());
@@ -1545,7 +1545,7 @@ public class CLFBean {
             // create detail
             if (stmt.getInt(1) == 0) {               
                 
-                String sStatus = stmt.getString(10);
+                String sStatus = (stmt.getString(10) == null) ? "" : stmt.getString(10);
                 String sAttrsRaw = stmt.getString(6);
                 HashMap<Integer, String> hOutAttributes = null;
                 
@@ -1721,7 +1721,7 @@ public class CLFBean {
                     
                 }                
                 
-                PAPI papi = new PAPI(iPropertyID, sAction, null, hInAttributes, hOutAttributes);
+                PAPI papi = new PAPI(iPropertyID, sAction, "", hInAttributes, hOutAttributes);
                 stmt.close();
                 
                 return papi;
@@ -1838,6 +1838,624 @@ public class CLFBean {
             
         }
         
-    }        
+    }  
+    
+    /**
+    * Get Lov tariff
+    * @param iTariffID
+    * @return LovTariff
+    */
+    public LovTariff getLovTariff(int iTariffID) {
+        
+        try {
+
+            StringBuilder sb = new StringBuilder();
+            sb.append("getLovTariff() - params iTariffID:").append(iTariffID);
+            logger.debug(sb);
+
+            // execute query
+            StringBuilder sbQuery = new StringBuilder();
+            sbQuery.append("SELECT a.x_extid, a.title, a.x_title_en, a.x_attr11, a.x_attr5, a.state, a.x_attr10, a.x_attr16, ");
+            sbQuery.append("a.x_attr23, a.x_attr29, a.x_attr30, a.x_attr31, a.x_attr32, a.x_attr33, a.x_attr34, a.x_attr35, a.x_attr36 ");
+            sbQuery.append("FROM SA.TABLE_GBST_ELM a,  SA.TABLE_GBST_LST b ");
+            sbQuery.append("WHERE a.gbst_elm2gbst_lst = b.objid AND b.title = 'TARIFF' AND a.x_Extid = '").append(iTariffID).append("'");
+            
+            Statement stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery(sbQuery.toString());
+            
+            // parse result
+            if (rs == null) {
+                
+                stmt.close();
+                return null;
+                
+            }
+            else {
+                
+                rs.next();
+                int iID = Integer.valueOf(rs.getString("x_extid"));
+                String sTitle = rs.getString("title");
+                String sCzTitle = rs.getString("x_title_en");
+                String sOffer = rs.getString("x_attr11");
+                float fMonthlyFee = Float.valueOf(rs.getString("x_attr5"));
+                int iActive = Integer.valueOf(rs.getString("state"));
+                String sGroup = rs.getString("x_attr10"); 
+                String sType = rs.getString("x_attr16"); 
+                String sReportingType = rs.getString("x_attr23"); 
+                String sProfile = "";
+                String sBundleFlg = rs.getString("x_attr29"); 
+                Float fBundleDiscount = (rs.getString("x_attr30") != null ? Float.valueOf(rs.getString("x_attr30")) : -1); 
+                String sVPNCompatibleFlg = rs.getString("x_attr31");
+                String sNonpublicFlg = rs.getString("x_attr32");
+                String sLTEFlg = rs.getString("x_attr33");
+                String sFlatType = rs.getString("x_attr34");
+                int iSQDProfile = (rs.getString("x_attr35") != null ? Integer.valueOf(rs.getString("x_attr35")) : -1);
+                String sSharedTariffComp = rs.getString("x_attr36");
+                rs.close();
+                stmt.close();
+                return new LovTariff(iID, sTitle, sCzTitle, sOffer, fMonthlyFee, iActive, sGroup, sType,
+                                     sReportingType, sProfile, sBundleFlg, fBundleDiscount, sVPNCompatibleFlg,
+                                     sNonpublicFlg, sLTEFlg, sFlatType, iSQDProfile, sSharedTariffComp);
+                
+            }
+            
+        }
+        catch (Exception ex) {
+            
+            logger.error("getLovTariff()", ex);
+            return null;
+            
+        }
+        
+    }      
+    
+    /**
+    * Get Lov nonpublic offer
+    * @param iNonpublicOfferID
+    * @return LovNonpublicOffer
+    */
+    public LovNonpublicOffer getLovNonpublicOffer(int iNonpublicOfferID) {
+        
+        try {
+
+            StringBuilder sb = new StringBuilder();
+            sb.append("getLovNonpublicOffer() - params iNonpublicOfferID:").append(iNonpublicOfferID);
+            logger.debug(sb);
+
+            // execute query
+            StringBuilder sbQuery = new StringBuilder();
+            sbQuery.append("SELECT a.x_extid, a.title, a.x_attr1 ");
+            sbQuery.append("FROM SA.TABLE_GBST_ELM a, SA.TABLE_GBST_LST b ");
+            sbQuery.append("WHERE a.gbst_elm2gbst_lst = b.objid AND b.title = 'NON_PUBLIC_OFFERS' AND a.x_extid = '");
+            sbQuery.append(iNonpublicOfferID).append("'");
+            
+            Statement stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery(sbQuery.toString());
+            
+            // parse result
+            if (rs == null) {
+                
+                stmt.close();
+                return null;
+                
+            }
+            else {
+                
+                rs.next();
+                int iID = Integer.valueOf(rs.getString("x_extid"));
+                String sTitle = rs.getString("title");
+                int iServiceID = Integer.valueOf(rs.getString("x_attr1"));
+                rs.close();
+                stmt.close();
+                return new LovNonpublicOffer(iID, sTitle, iServiceID);
+                
+            }
+            
+        }
+        catch (Exception ex) {
+            
+            logger.error("getLovNonpublicOffer()", ex);
+            return null;
+            
+        }
+        
+    }  
+    
+    /**
+    * Get Lov tariff promo
+    * @param iTariffPromoID
+    * @return LovTariffPromo
+    */
+    public LovTariffPromo getLovTariffPromo(int iTariffPromoID) {
+        
+        try {
+
+            StringBuilder sb = new StringBuilder();
+            sb.append("getLovTariffPromo() - params iTariffPromoID:").append(iTariffPromoID);
+            logger.debug(sb);
+
+            // execute query
+            StringBuilder sbQuery = new StringBuilder();
+            sbQuery.append("select a.x_extid, a.title, a.description, nvl(a.x_attr1,-1) as x_attr1, nvl(a.x_attr2,-1) as x_attr2, ");
+            sbQuery.append("nvl(a.x_attr3,-1) as x_attr3, nvl(a.x_attr4,-1) as x_attr4, nvl(a.x_attr5,-1) as x_attr5, ");
+            sbQuery.append("nvl(a.x_attr6,-1) as x_attr6, nvl(a.x_attr7,-1) as x_attr7, nvl(a.x_attr8,-1) as x_attr8, nvl(a.x_attr9,-1) as x_attr9 ");
+            sbQuery.append("FROM SA.TABLE_GBST_ELM a,  SA.TABLE_GBST_LST b ");
+            sbQuery.append("WHERE a.gbst_elm2gbst_lst = b.objid AND b.title = 'TARIFF_PROMOS' AND a.x_Extid = '");
+            sbQuery.append(iTariffPromoID).append("'");
+            
+            Statement stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery(sbQuery.toString());
+            
+            // parse result
+            if (rs == null) {
+                
+                stmt.close();
+                return null;
+                
+            }
+            else {
+                
+                rs.next();
+                int iID = Integer.valueOf(rs.getString("x_extid"));
+                String sTitle = rs.getString("title");
+                String sDescription = rs.getString("description");
+                String sReasonOfUse = rs.getString("x_attr1");
+                int iExtraMinutes = Integer.valueOf(rs.getString("x_attr2"));
+                int iExtraMessages = Integer.valueOf(rs.getString("x_attr3"));
+                int iFupLimit = Integer.valueOf(rs.getString("x_attr4"));
+                float fMfDiscount = Float.valueOf(rs.getString("x_attr5"));
+                int iTariff = Integer.valueOf(rs.getString("x_attr6"));
+                int iExtraCreditPcnt = Integer.valueOf(rs.getString("x_attr7"));
+                int iExtraMinutesTmcz = Integer.valueOf(rs.getString("x_attr8"));
+                float fMbdMfDiscount = Float.valueOf(rs.getString("x_attr9"));
+                rs.close();
+                stmt.close();
+                return new LovTariffPromo(iID, sTitle, sDescription, sReasonOfUse, iExtraMinutes, iExtraMessages,
+                                          iFupLimit, fMfDiscount, iTariff, iExtraCreditPcnt, iExtraMinutesTmcz,
+                                          fMbdMfDiscount);
+                
+            }
+            
+        }
+        catch (Exception ex) {
+            
+            logger.error("getLovTariffPromo()", ex);
+            return null;
+            
+        }
+        
+    }    
+    
+    /**
+    * Get Lov retention offer
+    * @param iRetentionOfferID
+    * @return LovRetentionOffer
+    */
+    public LovRetentionOffer getLovRetentionOffer(int iRetentionOfferID) {
+        
+        try {
+
+            StringBuilder sb = new StringBuilder();
+            sb.append("getLovRetentionOffer() - params iRetentionOfferID:").append(iRetentionOfferID);
+            logger.debug(sb);
+
+            // execute query
+            StringBuilder sbQuery = new StringBuilder();
+            sbQuery.append("SELECT a.x_extid, a.title, a.x_attr1, a.x_attr2, a.x_attr3 ");
+            sbQuery.append("FROM SA.TABLE_GBST_ELM a, SA.TABLE_GBST_LST b ");
+            sbQuery.append("WHERE a.gbst_elm2gbst_lst = b.objid AND b.title = 'RETENTION_OFFER' AND a.x_extid = '");
+            sbQuery.append(iRetentionOfferID).append("'");
+            
+            Statement stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery(sbQuery.toString());
+            
+            // parse result
+            if (rs == null) {
+                
+                stmt.close();
+                return null;
+                
+            }
+            else {
+                
+                rs.next();
+                int iID = Integer.valueOf(rs.getString("x_extid"));
+                String sTitle = rs.getString("title");
+                String sOption = rs.getString("x_attr1");
+                String sGroup = rs.getString("x_attr2");
+                int iSubsubject = Integer.valueOf(rs.getString("x_attr3"));
+                rs.close();
+                stmt.close();
+                return new LovRetentionOffer(iID, sTitle, sOption, sGroup, iSubsubject);
+                
+            }
+            
+        }
+        catch (Exception ex) {
+            
+            logger.error("getLovRetentionOffer()", ex);
+            return null;
+            
+        }
+        
+    }  
+    
+    /**
+    * Get Lov service
+    * @param iServiceID
+    * @return LovService
+    */
+    public LovService getLovService(int iServiceID) {
+        
+        try {
+
+            StringBuilder sb = new StringBuilder();
+            sb.append("getLovService() - params iServiceID:").append(iServiceID);
+            logger.debug(sb);
+
+            // params query
+            StringBuilder sbQuery = new StringBuilder();
+            sbQuery.append("SELECT a.s_model_num, a.description, f.x_id, f.attribute_name, g.x_value, g.x_description ");
+            sbQuery.append("FROM SA.TABLE_PART_NUM a, SA.TABLE_MOD_LEVEL b, SA.MTM_MOD_LEVEL53_FLEX_TMPL1 c, SA.TABLE_FLEX_TMPL d, ");
+            sbQuery.append("SA.MTM_FLEX_DEFN0_FLEX_TMPL0 e, SA.TABLE_FLEX_DEFN f, SA.TABLE_X_CSR_PARAM_VALUE g ");
+            sbQuery.append("WHERE a.s_model_num = '").append(iServiceID).append("' AND a.objid = b.part_info2part_num ");
+            sbQuery.append("AND b.objid = c.mod_level2flex_tmpl AND c.flex_tmpl2mod_level = d.objid AND e.flex_tmpl2flex_defn = d.objid ");
+            sbQuery.append("AND e.flex_defn2flex_tmpl = f.objid (+) AND f.objid = g.focus_lowid (+)");
+            
+            Statement stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery(sbQuery.toString());
+            
+            // parse result
+            if (rs == null) {
+                
+                stmt.close();
+                return null;
+                
+            }
+            else {
+                
+                LovService service;
+                int iID = -1; 
+                String sTitle = null;
+                int iCurr;
+                HashMap<Integer, LovServiceParam> hParams = new HashMap<Integer, LovServiceParam>();
+                LovServiceParam param = null;
+                int iParamID = -1;
+                String sParamTitle = null;
+                HashMap<String, String> hValues = new HashMap<String, String>();
+                String sValue;
+                String sValueTitle;
+                
+                int iDataType = -1;
+                String sDefaultValue = null;
+                int iRequired = -1;
+                int iMultiple = -1;
+                int iNetworkIndicator = -1;
+                
+                while (rs.next()) {
+                    
+                    if (iID == -1)
+                        iID = Integer.valueOf(rs.getString("s_model_num"));
+                    
+                    if (sTitle == null)
+                        sTitle = rs.getString("description");
+                    
+                    iCurr = (rs.getString("x_id") != null) ? Integer.valueOf(rs.getString("x_id")) : -1; 
+                    
+                    // store param 
+                    if (iParamID != -1 && iCurr != iParamID ) {
+                        
+                        if (hValues.isEmpty())
+                            hValues = null;
+                        
+                        hParams.put(iParamID, param);
+                        hValues = new HashMap<String, String>();
+                            
+                    }
+                    
+                    // new param
+                    if (iCurr != -1 && iCurr != iParamID) {
+                                                                        
+                        iParamID = iCurr;
+                        sParamTitle = rs.getString("attribute_name");                                                                      
+                        param = new LovServiceParam(iParamID, sParamTitle, hValues);
+                        
+                        // param details
+                        StringBuilder sbQueryParam = new StringBuilder();
+                        sbQueryParam.append("SELECT attribute_datatype, default_value, is_required, x_is_multiple, x_csr_network_indicator ");
+                        sbQueryParam.append("FROM SA.TABLE_FLEX_DEFN ");
+                        sbQueryParam.append("WHERE x_id = ").append(iParamID);   
+                        
+                        Statement stmtParam = con.createStatement();
+                        ResultSet rsParam = stmtParam.executeQuery(sbQueryParam.toString());
+                        
+                        // parse result
+                        if (rsParam != null) {
+                            
+                            rsParam.next();
+                            
+                            iDataType = Integer.valueOf(rsParam.getString("attribute_datatype"));
+                            sDefaultValue = (rsParam.getString("default_value") == null) ? "" : rsParam.getString("default_value");
+                            iRequired = Integer.valueOf(rsParam.getString("is_required"));        
+                            iMultiple = Integer.valueOf(rsParam.getString("x_is_multiple"));
+                            iNetworkIndicator = Integer.valueOf(rsParam.getString("x_csr_network_indicator"));
+                            
+                            param.setDataType(iDataType);
+                            param.setDefaultValue(sDefaultValue);
+                            param.setRequired(iRequired);
+                            param.setMultiple(iMultiple);
+                            param.setNetworkIndicator(iNetworkIndicator);
+                            
+                        }
+                        
+                    }
+                    
+                    // store value
+                    sValue = rs.getString("x_value");
+                    sValueTitle = (rs.getString("x_description") == null) ? "" : rs.getString("x_description");
+                    
+                    if (sValue != null)
+                        hValues.put(sValue, sValueTitle);
+                  
+                }
+                
+                // last param
+                if (iParamID != -1) 
+                    hParams.put(iParamID, new LovServiceParam(iParamID, sParamTitle, hValues, iDataType, sDefaultValue,
+                                                              iRequired, iMultiple, iNetworkIndicator));
+                               
+                if (hParams.isEmpty())
+                    hParams = null;
+                
+                // store service
+                service = new LovService(iID, sTitle, hParams);                
+                
+                // service detail
+                sbQuery = new StringBuilder();
+                sbQuery.append("SELECT a.eff_date, a.end_date, a.x_is_multiple, a.x_csr_su, a.x_csr_cu, a.x_csr_le, ");
+                sbQuery.append("a.x_csr_ou, a.x_csr_eu, a.x_csr_ba, a.x_csr_co, a.x_csr_network_indicator, a.x_is_suspendable, ");
+                sbQuery.append("a.x_planning_to_future, a.x_is_assign_push, a.x_is_change_push, a.x_create_time_bomb, ");
+                sbQuery.append("d.x_extid, d.title, c.x_shared, c.x_csr_network_indicator AS res_network_indicator ");
+                sbQuery.append("FROM SA.TABLE_MOD_LEVEL a, SA.TABLE_PART_NUM b, SA.TABLE_X_CSR_RES_DEF c, SA.TABLE_GBST_ELM d ");
+                sbQuery.append("WHERE b.s_model_num = '").append(iServiceID).append("' AND b.objid = a.part_info2part_num ");
+                sbQuery.append("AND a.x_mod_level2csr_res_def = c.objid (+) AND c.x_csr_res_def2type = d.objid (+)");
+            
+                stmt = con.createStatement();
+                rs = stmt.executeQuery(sbQuery.toString());   
+                
+                // parse result
+                if (rs != null) {
+                    
+                    rs.next();
+                    
+                    service.setStartDate(rs.getString("eff_date"));
+                    service.setEndDate(rs.getString("end_date"));
+                    service.setNetworkIndicator(Integer.valueOf(rs.getString("x_csr_network_indicator")));
+                    service.setMultiple(Integer.valueOf(rs.getString("x_is_multiple")));
+                    service.setSuspendable(Integer.valueOf(rs.getString("x_is_suspendable")));
+                    service.setSchedulable(Integer.valueOf(rs.getString("x_planning_to_future")));
+                    service.setAssignPush(Integer.valueOf(rs.getString("x_is_assign_push")));
+                    service.setChangePush(Integer.valueOf(rs.getString("x_is_change_push")));
+                    service.setTimeBomb(Integer.valueOf(rs.getString("x_create_time_bomb")));
+                    service.setSU(Integer.valueOf(rs.getString("x_csr_su")));
+                    service.setBA(Integer.valueOf(rs.getString("x_csr_ba")));
+                    service.setEU(Integer.valueOf(rs.getString("x_csr_eu")));
+                    service.setOU(Integer.valueOf(rs.getString("x_csr_ou")));
+                    service.setLE(Integer.valueOf(rs.getString("x_csr_le")));
+                    service.setCU(Integer.valueOf(rs.getString("x_csr_cu")));
+                    service.setCO(Integer.valueOf(rs.getString("x_csr_co")));
+                    
+                    // resource
+                    if (rs.getString("x_extid") != null) {
+                        
+                        service.setResourceID(Integer.valueOf(rs.getString("x_extid")));
+                        service.setResourceTitle(rs.getString("title"));
+                        service.setResourceShared(Integer.valueOf(rs.getString("x_shared")));
+                        service.setResourceNetworkIndicator(Integer.valueOf(rs.getString("res_network_indicator")));
+                    
+                    }
+                    
+                }   
+                
+                // offers
+                sbQuery = new StringBuilder();
+                sbQuery.append("SELECT DISTINCT c.x_offer_id, c.x_description, d.x_name ");
+                sbQuery.append("FROM SA.TABLE_PART_NUM a, SA.TABLE_MOD_LEVEL b, SA.TABLE_X_CSR_OFFER_CFG c, SA.TABLE_X_CSR_OFFER_CFG_PARAM d ");
+                sbQuery.append("WHERE a.s_model_num = '").append(iServiceID).append("' AND a.objid = b.part_info2part_num AND b.objid = c.x_csr_offer_cfg2service ");
+                sbQuery.append("AND c.objid = d.x_csr_offer_cfg_param2offer (+) ");
+                sbQuery.append("ORDER BY 1, 3");
+            
+                stmt = con.createStatement();
+                rs = stmt.executeQuery(sbQuery.toString());   
+                
+                // parse result
+                LovOffer offer = null;
+                HashMap<Integer, LovOffer> hOffers = new HashMap<Integer, LovOffer>();
+                List<String> lstParams = new ArrayList<String>();
+                iID = -1;
+                sTitle = null;
+                iCurr = -1;
+                
+                if (rs != null) {
+                
+                    while (rs.next()) {
+
+                        iCurr = Integer.valueOf(rs.getString("x_offer_id")); 
+                    
+                        // store offer 
+                        if (iID != -1 && iCurr != iID ) {
+                        
+                            if (lstParams.isEmpty())
+                                lstParams = null;
+                        
+                            hOffers.put(iID, offer);
+                            lstParams = new ArrayList<String>();
+                            
+                        }
+                    
+                        // new offer
+                        if (iCurr != -1 && iCurr != iID) {
+                                                                        
+                            iID = iCurr;
+                            sTitle = rs.getString("x_description");                                                                      
+                            offer = new LovOffer(iID, sTitle, lstParams);   
+                        
+                        }
+                    
+                        // store param
+                        sParamTitle = rs.getString("x_name");
+                    
+                        if (sParamTitle != null)
+                            lstParams.add(sParamTitle);
+                    
+                    }
+                
+                    // last offer
+                    if (iID != -1)
+                        hOffers.put(iID, new LovOffer(iID, sTitle, lstParams));  
+                
+                    service.setOffers(hOffers);
+                
+                }
+                
+                // clear resources
+                rs.close();
+                stmt.close();
+                return service;
+                
+            }
+            
+        }
+        catch (Exception ex) {
+            
+            logger.error("getLovService()", ex);
+            return null;
+            
+        }
+        
+    }   
+    
+    /**
+    * Get Lov PAPI
+    * @param iPAPIID
+    * @return LovPAPI
+    */
+    public LovPAPI getLovPAPI(int iPAPIID) {
+        
+        try {
+
+            StringBuilder sb = new StringBuilder();
+            sb.append("getLovPAPI() - params iPAPIID:").append(iPAPIID);
+            logger.debug(sb);
+
+            // execute query
+            StringBuilder sbQuery = new StringBuilder();
+            sbQuery.append("SELECT a.property_id, a.name, c.action_id, d.attribute_id, e.name as attribute, f.name AS direction, g.name as cardinality, ");
+            sbQuery.append("h.name as datatype, i.name as type, e.clf_lov_name, e.clf_lov_parent_id ");
+            sbQuery.append("FROM SY_CRM.CRM_PROPERTY a, SY_CRM.CRM_PROPERTY_VERSION b, SY_CRM.CRM_PROPERTY_ACTION c, ");
+            sbQuery.append("SY_CRM.CRM_PROPERTY_ATTRIBUTE d, SY_CRM.CRM_ATTRIBUTE e, SY_CRM.CRM_LOV_DIRECTION f, SY_CRM.CRM_LOV_CARDINALITY g, ");
+            sbQuery.append("SY_CRM.CRM_LOV_DATATYPE h, SY_CRM.CRM_LOV_ATTRIBUTE_TYPE i ");
+            sbQuery.append("WHERE a.property_id = ").append(iPAPIID).append(" AND a.property_id = b.property_id AND b.property_version_id = c.property_version_id ");
+            sbQuery.append("AND c.property_action_id = d.property_action_id and d.attribute_id = e.attribute_id ");
+            sbQuery.append("AND d.direction_id = f.direction_id AND d.cardinality_id = g.cardinality_id AND e.datatype_id = h.datatype_id ");
+            sbQuery.append("AND e.attribute_type_id = i.attribute_type_id ");
+            sbQuery.append("ORDER BY 3, 4");
+            
+            Statement stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery(sbQuery.toString());
+            
+            // parse result
+            if (rs == null) {
+                
+                stmt.close();
+                return null;
+                
+            }
+            else {
+                
+                LovPAPI papi;
+                int iID = -1; 
+                String sTitle = null;
+                String sCurr;
+                HashMap<String, LovPAPIAction> hActions = new HashMap<String, LovPAPIAction>();
+                LovPAPIAction action = null;
+                String sAction = null;
+                HashMap<Integer, LovPAPIAttribute> hAttributes = new HashMap<Integer, LovPAPIAttribute>();
+                int iAttrID;
+                String sAttrTitle;
+                String sDirection;
+                String sCardinality;
+                String sDataType;
+                String sType;
+                String sLovName;
+                String sLovParentID;                
+                
+                while (rs.next()) {     
+                    
+                    if (iID == -1)
+                        iID = Integer.valueOf(rs.getString("property_id"));
+                    
+                    if (sTitle == null)
+                        sTitle = rs.getString("name");
+                    
+                    sCurr = rs.getString("action_id"); 
+                    
+                    // store action 
+                    if (sAction != null && !sCurr.equals(sAction)) {
+                        
+                        if (hAttributes.isEmpty())
+                            hAttributes = null;
+                        
+                        hActions.put(sAction, action);
+                        hAttributes = new HashMap<Integer, LovPAPIAttribute>();
+                            
+                    }
+                    
+                    // new action
+                    if (sCurr != null && !sCurr.equals(sAction)) {
+                                                                        
+                        sAction = sCurr;                                                                    
+                        action = new LovPAPIAction(sAction, hAttributes);
+                        
+                    }
+                    
+                    // store attribute
+                    iAttrID = rs.getInt("attribute_id");
+                    sAttrTitle = rs.getString("attribute");
+                    sDirection = rs.getString("direction");
+                    sCardinality = rs.getString("cardinality");
+                    sDataType = rs.getString("datatype");
+                    sType = rs.getString("type");
+                    sLovName = (rs.getString("clf_lov_name") == null) ? "" : rs.getString("clf_lov_name");
+                    sLovParentID = (rs.getString("clf_lov_parent_id") == null) ? "" : rs.getString("clf_lov_parent_id");
+                    
+                    hAttributes.put(iAttrID, new LovPAPIAttribute(iAttrID, sAttrTitle, sDirection, sCardinality,
+                                                                  sDataType, sType, sLovName, sLovParentID));
+                  
+                }    
+                
+                // last action
+                if (sAction != null)
+                    hActions.put(sAction, new LovPAPIAction(sAction, hAttributes));
+                
+                // store service
+                papi = new LovPAPI(iID, sTitle, hActions);   
+                
+                // clear resources
+                rs.close();
+                stmt.close();
+                return papi;                
+                
+            }
+            
+        }
+        catch (Exception ex) {
+            
+            logger.error("getLovPAPI()", ex);
+            return null;
+            
+        }
+        
+    }      
     
 }

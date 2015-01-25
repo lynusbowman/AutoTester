@@ -341,8 +341,8 @@ public class AMXBean {
                 if (iCurr != -1 && iCurr != iID)
                     lstOffers.add(new Offer(iID, sTitle, sStatus));                
                 
-                // new service instance
-                if (iCurr == -1 || iCurr != -1) {
+                // new offer instance
+                if (iCurr == -1 || iCurr != iID) {
                 
                     iCurr = iID;
                     iID = rs.getInt("soc_cd");
@@ -370,6 +370,58 @@ public class AMXBean {
             
         }
         
-    }       
+    }   
+    
+    /**
+    * Get Lov offer
+    * @param iOfferID
+    * @return LovOffer
+    */
+    public LovOffer getLovOffer(int iOfferID) {
+        
+        try {
+
+            StringBuilder sb = new StringBuilder();
+            sb.append("getLovOffer() - params iOfferID:").append(iOfferID);
+            logger.debug(sb);
+
+            // execute query
+            StringBuilder sbQuery = new StringBuilder();
+            sbQuery.append("SELECT soc_cd, soc_name, service_level, soc_type ");
+            sbQuery.append("FROM CSM_OFFER ");
+            sbQuery.append("WHERE soc_cd = ").append(iOfferID);
+            
+            Statement stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery(sbQuery.toString());
+            
+            // parse result
+            if (rs == null) {
+                
+                stmt.close();
+                return null;
+                
+            }
+            else {
+                
+                rs.next();
+                int iID = Integer.valueOf(rs.getString("soc_cd"));
+                String sTitle = rs.getString("soc_name");
+                String sServiceLevel = rs.getString("service_level");
+                String sSocType = rs.getString("soc_type");
+                rs.close();
+                stmt.close();
+                return new LovOffer(iID, sTitle, sServiceLevel, sSocType);
+                
+            }
+            
+        }
+        catch (Exception ex) {
+            
+            logger.error("getLovOffer()", ex);
+            return null;
+            
+        }
+        
+    }      
     
 }

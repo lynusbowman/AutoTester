@@ -19,8 +19,6 @@ import org.apache.logging.log4j.Logger;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 
-import java.lang.AssertionError;
-
 /**
 * Utilities for scripting
 * 
@@ -407,7 +405,7 @@ public class Utilities {
             logger.info(sb);
             
             // check passed
-            if (oValue != null && oValue.equals(oCheck)) {
+            if (oValue.equals(oCheck)) {
                          
                 sb = new StringBuilder();
                 sb.append("Check ").append(sLog).append(" - ").append(oValue).append("=").append(oCheck);
@@ -742,6 +740,51 @@ public class Utilities {
             
         }
         
-    }         
+    }   
+    
+    /**
+    * Get test data
+    * @param sEnvironment environment
+    * @return int
+    */
+    public int getTestData(String sEnvironment) {
+        
+        try {
+            
+            StringBuilder sb = new StringBuilder();
+            sb.append("getTestData() - corrId=").append(iLogID).append(", params sEnvironment:").append(sEnvironment);
+            logger.info(sb);
+            
+            if (sEnvironment.equals("TEST 1") || sEnvironment.equals("TEST 2")) {
+                       
+              int iData = testCaseBean.getTestData(iLogID, sEnvironment).get(0).getData();
+              
+              sb = new StringBuilder();
+              sb.append("Get data ").append(iData);
+              log(Result.OK, sb.toString());
+              return iData;
+                
+            }
+            else {
+                
+                sb = new StringBuilder();
+                sb.append(sEnvironment).append(" must be in test1 or test2");
+                log(Result.ERR, sb.toString());
+                return -1;
+                
+            }
+
+        }
+        catch (Exception ex) {
+            
+            logger.error("pause()", ex);
+            StringBuilder sb = new StringBuilder();
+            sb.append("Failed to get data ");
+            log(Result.ERR, sb.toString());
+            return -1;
+            
+        }
+        
+    }       
     
 }

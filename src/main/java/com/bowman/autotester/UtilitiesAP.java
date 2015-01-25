@@ -206,6 +206,65 @@ public class UtilitiesAP {
             return null;
         }
         
+    }   
+    
+    /**
+    * Get Lov
+    * @param sLovType Lov type
+    * @param oID ID
+    * @return Lov
+    */
+    public Lov getLov(String sLovType, Object oID) {
+        
+        try {
+            
+            StringBuilder sb = new StringBuilder();
+            sb.append("getLov() - corrId=").append(iLogID).append(", params sLovType:").append(sLovType);
+            sb.append(", oID:").append(oID);
+            logger.info(sb);
+            
+            Lov lov = null;
+            
+            if (sLovType.equals("TARIFF"))
+                lov = apBean.getLovTariff((Integer) oID);
+            else if (sLovType.equals("NON_PUBLIC_OFFER"))
+                lov = apBean.getLovNonpublicOffer((Integer) oID);
+            else if (sLovType.equals("TARIFF_PROMO"))
+                lov = apBean.getLovTariffPromo((Integer) oID);
+            else if (sLovType.equals("DISCOUNT_PROPERTY"))
+                lov = apBean.getLovDiscountProperty(String.valueOf(oID));  
+            else if (sLovType.equals("RETENTION_OFFER"))
+                lov = apBean.getLovRetentionOffer((Integer) oID);  
+            else if (sLovType.equals("SERVICE"))
+                lov = apBean.getLovService((Integer) oID);               
+            
+            if (lov == null) {
+                
+                sb = new StringBuilder();
+                sb.append("Failed to get Lov:").append(sLovType).append(" for ID:").append(oID);
+                util.log(Result.ERR, sb.toString());
+                
+                return null;
+                
+            }
+            else {
+                                
+                util.log(Result.OK, lov.toString());                
+                return lov;
+                
+            }
+            
+        }
+        catch (Exception ex) {
+            
+            logger.error("getLov()", ex);
+            StringBuilder sb = new StringBuilder();
+            sb.append("Failed to get Lov:").append(sLovType).append(" for ID:").append(oID);
+            util.log(Result.ERR, sb.toString());
+            
+            return null;
+        }
+        
     }        
     
 }
