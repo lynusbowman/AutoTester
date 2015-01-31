@@ -212,6 +212,52 @@ public class UtilitiesAMX {
     } 
     
     /**
+    * Get status
+    * @param sMSISDN MSISDN
+    * @return String
+    */
+    public String getStatus(String sMSISDN) {
+        
+        try {
+            
+            StringBuilder sb = new StringBuilder();
+            sb.append("getStatus() - corrId=").append(iLogID).append(", params sMSISDN:").append(sMSISDN);
+            logger.info(sb);
+            
+            String sStatus = amxBean.getStatus(sMSISDN);
+            
+            if (sStatus == null) {
+                
+                sb = new StringBuilder();
+                sb.append("Failed to get status for MSISDN:").append(sMSISDN);
+                util.log(Result.ERR, sb.toString());
+                
+                return null;
+                
+            }
+            else {
+                
+                sb = new StringBuilder();
+                sb.append("Get status: ").append(sStatus).append(" for MSISDN:").append(sMSISDN);
+                util.log(Result.OK, sb.toString());
+                
+                return sStatus;
+                
+            }
+            
+        }
+        catch (Exception ex) {
+            
+            logger.error("getStatus()", ex);
+            StringBuilder sb = new StringBuilder();
+            sb.append("Failed to get status for MSISDN:").append(sMSISDN);
+            util.log(Result.ERR, sb.toString());
+            
+            return null;
+        }
+    }      
+    
+    /**
     * Get SU offers
     * @param iExtID EXTID_SU
     * @return List of Offer

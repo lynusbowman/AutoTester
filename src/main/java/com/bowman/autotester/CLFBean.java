@@ -56,7 +56,9 @@ public class CLFBean {
     private String sUrl;
     private String sUser;
     private String sPass;   
-    private Connection con;           
+    private Connection con;    
+    
+    public static final int iRowCnt = 10;
     
     /**********************************
               constructors
@@ -311,7 +313,7 @@ public class CLFBean {
             ResultSet rs = stmt.executeQuery(sbQuery.toString());
             
             // parse result
-            if (rs == null) {
+            if (!rs.next()) {
                 
                 stmt.close();
                 return -1;
@@ -319,7 +321,6 @@ public class CLFBean {
             }
             else {
                 
-                rs.next();
                 int iCU = rs.getInt("x_external_id");
                 rs.close();
                 stmt.close();
@@ -360,7 +361,7 @@ public class CLFBean {
             ResultSet rs = stmt.executeQuery(sbQuery.toString());
             
             // parse result
-            if (rs == null) {
+            if (!rs.next()) {
                 
                 stmt.close();
                 return -1;
@@ -368,7 +369,6 @@ public class CLFBean {
             }
             else {
                 
-                rs.next();
                 int iLE = rs.getInt("x_external_id");
                 rs.close();
                 stmt.close();
@@ -410,7 +410,7 @@ public class CLFBean {
             ResultSet rs = stmt.executeQuery(sbQuery.toString());
             
             // parse result
-            if (rs == null) {
+            if (!rs.next()) {
                 
                 stmt.close();
                 return -1;
@@ -418,7 +418,6 @@ public class CLFBean {
             }
             else {
                 
-                rs.next();
                 int iOU = rs.getInt("x_external_id");
                 rs.close();
                 stmt.close();
@@ -458,7 +457,7 @@ public class CLFBean {
             ResultSet rs = stmt.executeQuery(sbQuery.toString());
             
             // parse result
-            if (rs == null) {
+            if (!rs.next()) {
                 
                 stmt.close();
                 return -1;
@@ -466,7 +465,6 @@ public class CLFBean {
             }
             else {
                 
-                rs.next();
                 int iEU = rs.getInt("x_external_id");
                 rs.close();
                 stmt.close();
@@ -506,7 +504,7 @@ public class CLFBean {
             ResultSet rs = stmt.executeQuery(sbQuery.toString());
             
             // parse result
-            if (rs == null) {
+            if (!rs.next()) {
                 
                 stmt.close();
                 return -1;
@@ -514,7 +512,6 @@ public class CLFBean {
             }
             else {
                 
-                rs.next();
                 int iBA = rs.getInt("x_external_id");
                 rs.close();
                 stmt.close();
@@ -553,7 +550,7 @@ public class CLFBean {
             ResultSet rs = stmt.executeQuery(sbQuery.toString());
             
             // parse result
-            if (rs == null) {
+            if (!rs.next()) {
                 
                 stmt.close();
                 return -1;
@@ -561,7 +558,6 @@ public class CLFBean {
             }
             else {
                 
-                rs.next();
                 int iSU = rs.getInt("x_external_id");
                 rs.close();
                 stmt.close();
@@ -601,7 +597,7 @@ public class CLFBean {
             ResultSet rs = stmt.executeQuery(sbQuery.toString());
             
             // parse result
-            if (rs == null) {
+            if (!rs.next()) {
                 
                 stmt.close();
                 return null;
@@ -609,7 +605,6 @@ public class CLFBean {
             }
             else {
                 
-                rs.next();
                 String sStatus = rs.getString("x_attr2");
                 rs.close();
                 stmt.close();
@@ -651,7 +646,7 @@ public class CLFBean {
             ResultSet rs = stmt.executeQuery(sbQuery.toString());
             
             // parse result
-            if (rs == null) {
+            if (!rs.next()) {
                 
                 stmt.close();
                 return null;
@@ -659,7 +654,6 @@ public class CLFBean {
             }
             else {
                 
-                rs.next();
                 int iID = Integer.valueOf(rs.getString("x_extid"));
                 String sTitle = rs.getString("title");
                 rs.close();
@@ -702,7 +696,7 @@ public class CLFBean {
             ResultSet rs = stmt.executeQuery(sbQuery.toString());
             
             // parse result
-            if (rs == null) {
+            if (!rs.next()) {
                 
                 stmt.close();
                 return null;
@@ -710,7 +704,6 @@ public class CLFBean {
             }
             else {
                 
-                rs.next();
                 int iID = Integer.valueOf(rs.getString("x_extid"));
                 String sTitle = rs.getString("title");
                 rs.close();
@@ -751,7 +744,7 @@ public class CLFBean {
             ResultSet rs = stmt.executeQuery(sbQuery.toString());
             
             // parse result
-            if (rs == null) {
+            if (!rs.next()) {
                 
                 stmt.close();
                 return null;
@@ -759,7 +752,6 @@ public class CLFBean {
             }
             else {
                 
-                rs.next();
                 int iID = Integer.valueOf(rs.getString("x_extid"));
                 String sTitle = rs.getString("title");
                 rs.close();
@@ -804,7 +796,7 @@ public class CLFBean {
             ResultSet rs = stmt.executeQuery(sbQuery.toString());
             
             // parse result
-            if (rs == null) {
+            if (!rs.next()) {
                 
                 stmt.close();
                 return null;                
@@ -812,7 +804,6 @@ public class CLFBean {
             }
             else {
                 
-                rs.next();
                 int iID = Integer.valueOf(rs.getString("x_extid"));
                 String sTitle = rs.getString("title");
                 rs.close();
@@ -853,7 +844,7 @@ public class CLFBean {
             ResultSet rs = stmt.executeQuery(sbQuery.toString());
             
             // parse result
-            if (rs == null) {
+            if (!rs.next()) {
                 
                 stmt.close();
                 return null;
@@ -861,7 +852,6 @@ public class CLFBean {
             }
             else {
                 
-                rs.next();
                 int iID = Integer.valueOf(rs.getString("x_attr5"));
                 String sTitle = rs.getString("title");
                 rs.close();
@@ -1788,7 +1778,7 @@ public class CLFBean {
             Case cCase = null;
             
             // parse result
-            if (rs == null) {
+            if (!rs.next()) {
                 
                 stmt.close();
                 return null;
@@ -1796,7 +1786,6 @@ public class CLFBean {
             }
             else {
                 
-                rs.next();
                 String sID = rs.getString("id");
                 String sHistory = rs.getString("case_history");
                 String sStatus = rs.getString("status");
@@ -1864,7 +1853,7 @@ public class CLFBean {
             ResultSet rs = stmt.executeQuery(sbQuery.toString());
             
             // parse result
-            if (rs == null) {
+            if (!rs.next()) {
                 
                 stmt.close();
                 return null;
@@ -1872,7 +1861,6 @@ public class CLFBean {
             }
             else {
                 
-                rs.next();
                 int iID = Integer.valueOf(rs.getString("x_extid"));
                 String sTitle = rs.getString("title");
                 String sCzTitle = rs.getString("x_title_en");
@@ -1933,7 +1921,7 @@ public class CLFBean {
             ResultSet rs = stmt.executeQuery(sbQuery.toString());
             
             // parse result
-            if (rs == null) {
+            if (!rs.next()) {
                 
                 stmt.close();
                 return null;
@@ -1941,7 +1929,6 @@ public class CLFBean {
             }
             else {
                 
-                rs.next();
                 int iID = Integer.valueOf(rs.getString("x_extid"));
                 String sTitle = rs.getString("title");
                 int iServiceID = Integer.valueOf(rs.getString("x_attr1"));
@@ -1987,7 +1974,7 @@ public class CLFBean {
             ResultSet rs = stmt.executeQuery(sbQuery.toString());
             
             // parse result
-            if (rs == null) {
+            if (!rs.next()) {
                 
                 stmt.close();
                 return null;
@@ -1995,7 +1982,6 @@ public class CLFBean {
             }
             else {
                 
-                rs.next();
                 int iID = Integer.valueOf(rs.getString("x_extid"));
                 String sTitle = rs.getString("title");
                 String sDescription = rs.getString("description");
@@ -2050,7 +2036,7 @@ public class CLFBean {
             ResultSet rs = stmt.executeQuery(sbQuery.toString());
             
             // parse result
-            if (rs == null) {
+            if (!rs.next()) {
                 
                 stmt.close();
                 return null;
@@ -2058,7 +2044,6 @@ public class CLFBean {
             }
             else {
                 
-                rs.next();
                 int iID = Integer.valueOf(rs.getString("x_extid"));
                 String sTitle = rs.getString("title");
                 String sOption = rs.getString("x_attr1");
@@ -2452,6 +2437,179 @@ public class CLFBean {
         catch (Exception ex) {
             
             logger.error("getLovPAPI()", ex);
+            return null;
+            
+        }
+        
+    }   
+    
+    /**
+    * Search data according to criteria
+    * @param iSegment segment
+    * @param iMarket market
+    * @param iTariff tariff
+    * @param iService service
+    * @param bOwnData own data
+    * @return List
+    */
+    public List<String> searchData(int iSegment, int iMarket, int iTariff, int iService, boolean bOwnData) {
+        
+        try {
+
+            StringBuilder sb = new StringBuilder();
+            sb.append("searchData() - params iSegment:").append(iSegment).append(", iMarket:").append(iMarket);
+            sb.append(", iTariff:").append(iTariff).append(", iService:").append(iService).append(", bOwnData").append(bOwnData);
+            logger.debug(sb);
+
+            // execute query
+            StringBuilder sbQuery = new StringBuilder();
+            StringBuilder sbTables = new StringBuilder();
+            StringBuilder sbConditions = new StringBuilder();
+            sbQuery.append("SELECT a.s_serial_no ");
+            sbTables.append("FROM SA.TABLE_SITE_PART a, SA.TABLE_HGBST_ELM b ");
+            sbConditions.append("WHERE a.x_site_part2status_su = b.objid AND b.title = 'Active' ");
+            
+            // segment
+            if (iSegment > 0) {
+                
+                sbTables.append(", SA.TABLE_SITE c, SA.TABLE_BUS_ORG d, SA.TABLE_GBST_ELM e ");
+                sbConditions.append("AND a.site_part2site = c.objid AND c.x_site2customer = d.objid ");
+                sbConditions.append("AND d.x_bus_org2market_segment = e.objid AND e.x_extid = '").append(iSegment).append("' ");
+                
+            }
+            
+            // market
+            if (iMarket > 0) {
+                
+                sbTables.append(", SA.TABLE_GBST_ELM f ");
+                sbConditions.append("AND a.x_site_part2csr_market = f.objid AND f.x_extid = '").append(iMarket).append("' ");
+                
+            }
+            
+            // tariff
+            if (iTariff > 0) {
+                
+                sbTables.append(", SA.TABLE_X_TARIFF_DETAIL g, SA.TABLE_GBST_ELM h ");
+                sbConditions.append("AND a.objid = g.x_tarif_detail2site_part AND g.x_tariff_detail2tariff = h.objid ");
+                sbConditions.append("AND h.x_extid = '").append(iTariff).append("' AND g.x_active = 1 ");
+                
+            }
+            
+            // service
+            if (iService > 0) {
+                
+                sbTables.append(", SA.TABLE_SITE_PART i, SA.TABLE_MOD_LEVEL j, SA.TABLE_PART_NUM k, SA.TABLE_HGBST_ELM l ");
+                sbConditions.append(" AND a.objid = i.site_part2site_part AND i.site_part2part_info = j.objid ");
+                sbConditions.append("AND j.part_info2part_num = k.objid AND k.s_model_num = '").append(iService).append("' ");
+                sbConditions.append("AND i.x_site_part2status_su = l.objid AND l.title = 'Active' ");
+                
+            }
+            
+            // own data
+            if (bOwnData) 
+                sbConditions.append("AND a.s_serial_no IN (SELECT msisdn FROM TST_DATA.DATA_RESERVATION@QAP01.WORLD@APPTEST WHERE data_owner = 'AUTOTESTER') ");
+            else
+                sbConditions.append("AND a.s_serial_no NOT IN (SELECT msisdn FROM TST_DATA.DATA_RESERVATION@QAP01.WORLD@APPTEST) ");  
+            
+            // compose query
+            sbConditions.append("AND rownum < ").append(iRowCnt+1);
+            sbQuery.append(sbTables).append(sbConditions);
+            
+            Statement stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery(sbQuery.toString());
+            
+            // parse result
+            if (rs == null) {
+                
+                stmt.close();
+                return null;
+                
+            }
+
+            List<String> lstData = new ArrayList();
+            
+            while (rs.next()) {                
+                
+                lstData.add(rs.getString("s_serial_no"));
+                
+            } 
+            
+            rs.close();
+            stmt.close();
+            return lstData;
+            
+        }
+        catch (Exception ex) {
+            
+            logger.error("searchData()", ex);
+            return null;
+            
+        }
+        
+    }   
+    
+    /**
+    * Get Lov
+    * @param sLovType
+    * @return List
+    */
+    public List<String> getLov(String sLovType) {
+        
+        try {
+
+            StringBuilder sb = new StringBuilder();
+            sb.append("getLov() - params sLovType:").append(sLovType);
+            logger.debug(sb);
+
+            // execute query
+            StringBuilder sbQuery = new StringBuilder();
+            
+            // segment, market, tariff Lov
+            if (!sLovType.equals("SERVICE")) {
+            
+                sbQuery.append("SELECT a.x_extid || ' ' || a.title as lov ");
+                sbQuery.append("FROM SA.TABLE_GBST_ELM a, SA.TABLE_GBST_LST b ");
+                sbQuery.append("WHERE a.gbst_elm2gbst_lst = b.objid AND b.title = '").append(sLovType).append("' ");
+                sbQuery.append("ORDER BY to_number(a.x_extid)");
+            
+            }
+            // service Lov
+            else {
+                
+                sbQuery.append("SELECT b.s_model_num || ' ' || a.description as lov ");
+                sbQuery.append("FROM SA.TABLE_MOD_LEVEL a, SA.TABLE_PART_NUM b ");
+                sbQuery.append("WHERE a.part_info2part_num = b.objid AND b.s_domain = 'CSR SERVICE' ");
+                sbQuery.append("ORDER BY to_number(b.s_model_num)");
+                
+            }
+            
+            Statement stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery(sbQuery.toString());
+            
+            // parse result
+            if (rs == null) {
+                
+                stmt.close();
+                return null;
+                
+            }
+            
+            List<String> lstLov = new ArrayList();
+            
+            while(rs.next()) {
+
+                lstLov.add(rs.getString("lov"));
+                
+            }
+            
+            rs.close();
+            stmt.close();
+            return lstLov;            
+            
+        }
+        catch (Exception ex) {
+            
+            logger.error("getLov()", ex);
             return null;
             
         }

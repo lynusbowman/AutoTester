@@ -222,7 +222,7 @@ public class CNHBean {
             ResultSet rs = stmt.executeQuery(sbQuery.toString());
             
             // parse result
-            if (rs == null) {
+            if (!rs.next()) {
                 
                 stmt.close();
                 return null;
@@ -230,7 +230,6 @@ public class CNHBean {
             }
             else {             
                 
-                rs.next();
                 int iID = rs.getInt("notif_id");
                 String sTemplate = rs.getString("template_id");
                 int iStatus = rs.getInt("notif_status");

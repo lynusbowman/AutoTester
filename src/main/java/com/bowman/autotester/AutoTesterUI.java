@@ -38,6 +38,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ListSelect;
+import com.vaadin.ui.TabSheet;
 
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
@@ -72,15 +73,22 @@ public class AutoTesterUI extends UI
     private final static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
     
     // beans
-    TestCaseBean testCaseBean;    
+    TestCaseBean testCaseBean;  
+    CLFBean clfBean;
+    DWHBean dwhBean;
+    AMXBean amxBean;
+    APBean apBean;
     
     // properties
     Properties properties;
     
     // layout
+    TabSheet tabs;
     HorizontalLayout layout;
+    HorizontalLayout layTestCases;    
+    HorizontalLayout layTestData;
     
-    // test cases
+    // test cases    
     FormLayout frmTestCases;
     HorizontalLayout frmTestCasesHeader;
     Label lblTestCases;
@@ -143,6 +151,47 @@ public class AutoTesterUI extends UI
     Table tabTestCaseRuns;
     IndexedContainer idxTestCaseRuns;
     
+    // search criteria
+    FormLayout frmSearchCriteria;
+    Label lblSearchCriteria;
+    ListSelect lstSearchEnvironments;
+    ListSelect lstSegment;
+    ListSelect lstMarket;
+    ListSelect lstTariff;
+    ListSelect lstService;
+    CheckBox chkOwnData;
+    HorizontalLayout frmSearchCriteriaButtons;
+    Button btnLoadLov;
+    Button btnSearchData;
+    
+    // found data
+    FormLayout frmFoundData;
+    Label lblFoundData;
+    Table tabFoundData;
+    IndexedContainer idxFoundData;     
+    
+    // data repository
+    FormLayout frmDataRep;
+    Label lblDataRep;
+    Table tabDataRep;
+    IndexedContainer idxDataRep;
+    Button btnLoadData;
+    
+    // data detail
+    FormLayout frmDataDetail;
+    Label lblDataDetail;
+    TextField txtDataDetailID;
+    TextField txtDataDetailData;
+    TextField txtDataDetailTitle;
+    ListSelect lstDataDetailStatus;
+    ListSelect lstDataDetailEnvironment;
+    ListSelect lstDataDetailTestCase;
+    CheckBox chkDataDetailReserve;
+    HorizontalLayout frmTestDataButtons;
+    Button btnCreateTestData;
+    Button btnUpdateTestData;
+    Button btnDeleteTestData;     
+    
     /**********************************
               servlet
     **********************************/
@@ -175,23 +224,14 @@ public class AutoTesterUI extends UI
             // layout
             setLayout();
         
-            // test cases
-            setTestCases(); 
+            // test cases tab
+            setTestCasesTab(); 
             
-            // test case group detail
-            setTestCaseGroupDetail();
-            
-            // test case detail
-            setTestCaseDetail();
-            
-            // test runs
-            setTestRuns();
-            
-            // test case runs
-            setTestCaseRuns();
+            // test data tab
+            setTestDataTab();
             
             // events listeners
-            registerEvents();
+            registerEvents();            
             
             logger.debug("init() - finish GUI initialization");
             
@@ -217,6 +257,22 @@ public class AutoTesterUI extends UI
             testCaseBean = null;
             Context ctx = new InitialContext();
             testCaseBean = (TestCaseBean) ctx.lookup("java:global/AutoTester/TestCaseBean");
+            
+            // CLF bean
+            clfBean = null;
+            clfBean = (CLFBean) ctx.lookup("java:global/AutoTester/CLFBean");     
+            
+            // DWH bean
+            dwhBean = null;
+            dwhBean = (DWHBean) ctx.lookup("java:global/AutoTester/DWHBean");       
+            
+            // AMX bean
+            amxBean = null;
+            amxBean = (AMXBean) ctx.lookup("java:global/AutoTester/AMXBean");   
+            
+            // AP bean
+            apBean = null;
+            apBean = (APBean) ctx.lookup("java:global/AutoTester/APBean");               
             
         }
         catch (Exception ex) {
@@ -251,12 +307,15 @@ public class AutoTesterUI extends UI
         
         try {
             
-            logger.debug("setLayout()");
+            logger.debug("setLayout()");                        
             
             layout = new HorizontalLayout();
             layout.setSizeUndefined();
             layout.setSpacing(true);
             layout.setMargin(true);
+            tabs = new TabSheet();
+            layout.addComponent(tabs);
+            
             setContent(layout);            
             
         }
@@ -268,17 +327,53 @@ public class AutoTesterUI extends UI
     }
     
     /**
+    * Set test cases tab
+    */
+    protected void setTestCasesTab() {
+        
+        try {
+            
+            logger.debug("setTestCasesTab()");
+            
+            // tab
+            layTestCases = new HorizontalLayout();
+            tabs.addTab(layTestCases, "Test cases");            
+            
+            // test cases 
+            setTestCases(); 
+            
+            // test case group detail
+            setTestCaseGroupDetail();
+            
+            // test case detail
+            setTestCaseDetail();
+            
+            // test runs
+            setTestRuns();
+            
+            // test case runs
+            setTestCaseRuns();            
+            
+        }
+        catch (Exception ex) {
+            
+            logger.error("setTestCasesTab()", ex);
+            
+        }
+    }    
+    
+    /**
     * Set test cases form
     */
     protected void setTestCases() {
         
         try {
             
-            logger.debug("setTestCases()");
+            logger.debug("setTestCases()");            
             
             // form
             frmTestCases = new FormLayout();
-            layout.addComponent(frmTestCases);              
+            layTestCases.addComponent(frmTestCases);              
             
             // label
             lblTestCases = new Label("Test cases");
@@ -337,10 +432,7 @@ public class AutoTesterUI extends UI
             tabTestCases.setColumnWidth("Status", 60);
             tabTestCases.setColumnAlignment("Status", Table.Align.CENTER);
             tabTestCases.setColumnWidth("Run", 40);
-            tabTestCases.setColumnAlignment("Run", Table.Align.CENTER);                         
-            
-            // load test cases
-            loadTestCases();                          
+            tabTestCases.setColumnAlignment("Run", Table.Align.CENTER);                                                
             
         }
         catch (Exception ex) {
@@ -363,7 +455,7 @@ public class AutoTesterUI extends UI
             // group and test case forms layout
             layDetail = new VerticalLayout();
             layDetail.setSpacing(true);
-            layout.addComponent(layDetail);
+            layTestCases.addComponent(layDetail);
             
             // label
             lblTestCaseGroup = new Label("Test case group");
@@ -561,7 +653,7 @@ public class AutoTesterUI extends UI
             // test runs and test case runs forms layout
             layRuns = new VerticalLayout();
             layRuns.setSpacing(true);
-            layout.addComponent(layRuns);                         
+            layTestCases.addComponent(layRuns);                         
             
             // form
             frmTestRuns = new FormLayout();
@@ -812,7 +904,101 @@ public class AutoTesterUI extends UI
                             
                     }                        
                 }
-            );               
+            ); 
+            
+            // button LoadLov
+            btnLoadLov.addClickListener(
+                new ClickListener() {
+                    @Override
+                    public void buttonClick(ClickEvent event) {   
+                            
+                        loadLov();
+                            
+                    }                        
+                }
+            );             
+            
+            // button SearchData
+            btnSearchData.addClickListener(
+                new ClickListener() {
+                    @Override
+                    public void buttonClick(ClickEvent event) {   
+                            
+                        searchData();
+                            
+                    }                        
+                }
+            );   
+            
+            // button LoadData
+            btnLoadData.addClickListener(
+                new ClickListener() {
+                    @Override
+                    public void buttonClick(ClickEvent event) {   
+                            
+                        loadData();
+                            
+                    }                        
+                }
+            );  
+            
+            // row DataRep
+            tabDataRep.addItemClickListener(
+                    new ItemClickListener() {
+                        @Override
+                        public void itemClick(ItemClickEvent event) {
+                            
+                            loadDataDetail((Integer) event.getItem().getItemProperty("ID").getValue()); 
+                            
+                        }
+                    }
+            );            
+            
+            // button CreateTestData
+            btnCreateTestData.addClickListener(
+                    new ClickListener() {
+                        @Override
+                        public void buttonClick(ClickEvent event) {   
+                            
+                            createTestData((txtDataDetailData.getValue().isEmpty()) ? -1 : Integer.valueOf(txtDataDetailData.getValue()),
+                                           txtDataDetailTitle.getValue(),
+                                           Integer.valueOf(lstDataDetailStatus.getValue().toString()),
+                                           lstDataDetailEnvironment.getValue().toString(),
+                                           (lstDataDetailTestCase.getValue() == null) ? "" : lstDataDetailTestCase.getValue().toString(),
+                                           chkDataDetailReserve.getValue());
+                            
+                        }                        
+                    }
+            );  
+            
+            // button UpdateTestCaseData
+            btnUpdateTestData.addClickListener(
+                    new ClickListener() {
+                        @Override
+                        public void buttonClick(ClickEvent event) {   
+                            
+                            updateTestData(Integer.valueOf(txtDataDetailID.getValue()),
+                                           (txtDataDetailData.getValue().isEmpty()) ? -1 : Integer.valueOf(txtDataDetailData.getValue()),
+                                           txtDataDetailTitle.getValue(),
+                                           Integer.valueOf(lstDataDetailStatus.getValue().toString()),
+                                           lstDataDetailEnvironment.getValue().toString(),
+                                           lstDataDetailTestCase.getValue().toString());
+                            
+                        }                        
+                    }
+            );                
+            
+            // button DeleteTestData
+            btnDeleteTestData.addClickListener(
+                    new ClickListener() {
+                        @Override
+                        public void buttonClick(ClickEvent event) {   
+                            
+                            deleteTestData(Integer.valueOf(txtDataDetailID.getValue()));
+                            
+                        }                        
+                    }
+            );              
             
         }
         catch (Exception ex) {
@@ -1845,6 +2031,846 @@ public class AutoTesterUI extends UI
             
         }
         
+    }   
+    
+    /**
+    * Set test data tab
+    */
+    protected void setTestDataTab() {
+        
+        try {
+            
+            logger.debug("setTestDataTab()");
+            
+            // tab
+            layTestData = new HorizontalLayout();
+            tabs.addTab(layTestData, "Test data"); 
+            
+            // search criteria
+            setSearchCriteria();
+            
+            // found data
+            setFoundData();
+            
+            // data repository
+            setDataRep();
+            
+            // deta detail
+            setDataDetail();
+            
+        }
+        catch (Exception ex) {
+            
+            logger.error("setTestDataTab()", ex);
+            
+        }
+        
+    }  
+    
+    /**
+    * Set search criteria form
+    */
+    protected void setSearchCriteria() {
+        
+        try {
+            
+            logger.debug("setSearchCriteria()");
+
+            // form
+            frmSearchCriteria = new FormLayout();
+            layTestData.addComponent(frmSearchCriteria);
+            
+            // label
+            lblSearchCriteria = new Label("Search criteria");
+            frmSearchCriteria.addComponent(lblSearchCriteria);     
+            
+            // environment
+            lstSearchEnvironments = new ListSelect("Environment");
+            lstSearchEnvironments.addItem(properties.getProperty("test1"));
+            lstSearchEnvironments.addItem(properties.getProperty("test2"));
+            lstSearchEnvironments.setNullSelectionAllowed(false);
+            lstSearchEnvironments.setRows(1);
+            lstSearchEnvironments.setValue(properties.getProperty("test1"));
+            frmSearchCriteria.addComponent(lstSearchEnvironments);             
+            
+            // segment
+            lstSegment = new ListSelect("Segment");
+            lstSegment.setWidth("300px");
+            lstSegment.setNullSelectionAllowed(true);
+            lstSegment.setRows(1);            
+            frmSearchCriteria.addComponent(lstSegment);   
+            
+            // market
+            lstMarket = new ListSelect("Market");
+            lstMarket.setWidth("300px");
+            lstMarket.setNullSelectionAllowed(true);
+            lstMarket.setRows(1);            
+            frmSearchCriteria.addComponent(lstMarket);               
+            
+            // tariff
+            lstTariff = new ListSelect("Tariff");
+            lstTariff.setWidth("300px");
+            lstTariff.setNullSelectionAllowed(true);
+            lstTariff.setRows(1);            
+            frmSearchCriteria.addComponent(lstTariff);    
+            
+            // service
+            lstService = new ListSelect("Service");
+            lstService.setWidth("300px");
+            lstService.setNullSelectionAllowed(true);
+            lstService.setRows(1);            
+            frmSearchCriteria.addComponent(lstService);   
+            
+            // own data in reservation DB
+            chkOwnData = new CheckBox("Own data");
+            frmSearchCriteria.addComponent(chkOwnData);
+            
+            // load button
+            frmSearchCriteriaButtons = new HorizontalLayout();
+            frmSearchCriteria.addComponent(frmSearchCriteriaButtons);
+            btnLoadLov = new Button("Load");
+            btnLoadLov.setDescription("Load Lov");
+            frmSearchCriteriaButtons.addComponent(btnLoadLov);  
+            
+            // search button
+            btnSearchData = new Button("Search");
+            btnSearchData.setDescription("Search test data");
+            frmSearchCriteriaButtons.addComponent(btnSearchData);     
+        
+        }
+        catch (Exception ex) {
+            
+            logger.error("setSearchCriteria()", ex);
+            
+        }
+        
+    }      
+    
+    /**
+    * Set found data form
+    */
+    protected void setFoundData() {
+        
+        try {
+            
+            logger.debug("setFoundData()");
+
+            // form
+            frmFoundData = new FormLayout();
+            layTestData.addComponent(frmFoundData);
+            
+            // label
+            lblFoundData = new Label("Found data");
+            frmFoundData.addComponent(lblFoundData);                     
+            
+            // data
+            idxFoundData = new IndexedContainer();
+            tabFoundData = new Table();   
+            idxFoundData.addContainerProperty("MSISDN", String.class, null);
+            idxFoundData.addContainerProperty("EXT_ID", String.class, null);
+            idxFoundData.addContainerProperty("CLF", String.class, null);  
+            idxFoundData.addContainerProperty("DWH", String.class, null); 
+            idxFoundData.addContainerProperty("AMX", String.class, null); 
+            tabFoundData.setContainerDataSource(idxFoundData);
+            tabFoundData.setImmediate(true);
+            frmFoundData.addComponent(tabFoundData);   
+        
+        }
+        catch (Exception ex) {
+            
+            logger.error("setFoundData()", ex);
+            
+        }
+        
+    } 
+    
+    /**
+    * Set data repository form
+    */
+    protected void setDataRep() {
+        
+        try {
+            
+            logger.debug("setDataRep()");
+
+            // form
+            frmDataRep = new FormLayout();
+            layTestData.addComponent(frmDataRep);
+            
+            // label
+            lblDataRep = new Label("Data repository");
+            frmDataRep.addComponent(lblDataRep);     
+            
+            // data
+            idxDataRep = new IndexedContainer();
+            tabDataRep = new Table();  
+            idxDataRep.addContainerProperty("ID", Integer.class, null);
+            idxDataRep.addContainerProperty("Data", String.class, null);
+            idxDataRep.addContainerProperty("Title", String.class, null);
+            idxDataRep.addContainerProperty("Status", Integer.class, null);
+            idxDataRep.addContainerProperty("Environment", String.class, null);
+            tabDataRep.setContainerDataSource(idxDataRep);
+            tabDataRep.setImmediate(true);
+            frmDataRep.addComponent(tabDataRep);    
+            
+            // load button
+            btnLoadData = new Button("Load");
+            btnLoadData.setDescription("Load data");
+            frmDataRep.addComponent(btnLoadData);     
+            
+            // styling   
+            tabDataRep.setWidth("450px");
+            tabDataRep.setColumnWidth("Title", 80);
+            tabDataRep.setColumnAlignment("Status", Table.Align.CENTER);
+            tabDataRep.setColumnAlignment("Environment", Table.Align.CENTER);               
+        
+        }
+        catch (Exception ex) {
+            
+            logger.error("setDataRep()", ex);
+            
+        }
+        
+    }  
+    
+    /**
+    * Set data detail form
+    */
+    protected void setDataDetail() {
+        
+        try {
+            
+            logger.debug("setDataDetail()");
+
+            // form
+            frmDataDetail = new FormLayout();
+            layTestData.addComponent(frmDataDetail);
+            
+            // label
+            lblDataDetail = new Label("Data detail");
+            frmDataDetail.addComponent(lblDataDetail);    
+            
+            // ID
+            txtDataDetailID = new TextField();
+            txtDataDetailID.setVisible(false);
+            frmDataDetail.addComponent(txtDataDetailID);                
+            
+            // data
+            txtDataDetailData = new TextField("Data");
+            txtDataDetailData.setWidth("150px");
+            txtDataDetailData.setRequired(true);
+            frmDataDetail.addComponent(txtDataDetailData);    
+            
+            // title
+            txtDataDetailTitle = new TextField("Title");
+            txtDataDetailTitle.setWidth("150px");
+            frmDataDetail.addComponent(txtDataDetailTitle);   
+            
+            // status
+            lstDataDetailStatus = new ListSelect("Status");
+            lstDataDetailStatus.setRequired(true);
+            lstDataDetailStatus.addItem(0);
+            lstDataDetailStatus.addItem(1);
+            lstDataDetailStatus.setNullSelectionAllowed(false);
+            lstDataDetailStatus.setRows(1);
+            lstDataDetailStatus.setValue(1);
+            frmDataDetail.addComponent(lstDataDetailStatus);                 
+            
+            // environment
+            lstDataDetailEnvironment = new ListSelect("Environment");
+            lstDataDetailEnvironment.setRequired(true);
+            lstDataDetailEnvironment.addItem(properties.getProperty("test1"));
+            lstDataDetailEnvironment.addItem(properties.getProperty("test2"));
+            lstDataDetailEnvironment.setNullSelectionAllowed(false);
+            lstDataDetailEnvironment.setRows(1);
+            lstDataDetailEnvironment.setValue(properties.getProperty("test1"));
+            frmDataDetail.addComponent(lstDataDetailEnvironment);   
+            
+            // test case
+            lstDataDetailTestCase = new ListSelect("Test case");
+            lstDataDetailTestCase.setRequired(true);
+            lstDataDetailTestCase.setWidth("250px");
+            lstDataDetailTestCase.setNullSelectionAllowed(true);
+            lstDataDetailTestCase.setRows(1);
+            frmDataDetail.addComponent(lstDataDetailTestCase);  
+            
+            // reserve data in DB
+            chkDataDetailReserve = new CheckBox("Reserve");
+            frmDataDetail.addComponent(chkDataDetailReserve);            
+            
+            // buttons layout
+            frmTestDataButtons = new HorizontalLayout();
+            frmDataDetail.addComponent(frmTestDataButtons);              
+        
+            // create button
+            btnCreateTestData = new Button("Create");
+            btnCreateTestData.setDescription("Create test data");
+            frmTestDataButtons.addComponent(btnCreateTestData);
+        
+            // update button
+            btnUpdateTestData = new Button("Update");
+            btnUpdateTestData.setDescription("Update test data");
+            btnUpdateTestData.setEnabled(false);
+            frmTestDataButtons.addComponent(btnUpdateTestData);
+        
+            // delete button
+            btnDeleteTestData = new Button("Delete");
+            btnDeleteTestData.setDescription("Delete test data");
+            btnDeleteTestData.setEnabled(false);
+            frmTestDataButtons.addComponent(btnDeleteTestData);            
+        
+        }
+        catch (Exception ex) {
+            
+            logger.error("setDataDetail()", ex);
+            
+        }
+        
+    }   
+    
+    /**
+    * Reset data detail form
+    */
+    protected void resetDataDetail() {
+        
+        try {
+            
+            logger.debug("resetDataDetail()");
+            
+            txtDataDetailID.setValue("");
+            txtDataDetailData.setValue("");
+            txtDataDetailTitle.setValue("");
+            chkDataDetailReserve.setValue(false);
+            
+            txtDataDetailID.setComponentError(null);
+            txtDataDetailData.setComponentError(null);
+            btnCreateTestData.setComponentError(null);
+            btnUpdateTestData.setComponentError(null);
+            btnDeleteTestData.setComponentError(null);
+            
+            btnUpdateTestData.setEnabled(false);
+            btnDeleteTestData.setEnabled(false);
+            
+        }
+        catch (Exception ex) {
+            
+            logger.error("resetDataDetail()", ex);
+            
+        }
+        
     }    
+    
+    /**
+    * Load Lov for search criteria
+    */
+    protected void loadLov() {
+        
+        try {
+            
+            StringBuilder sb = new StringBuilder();
+            sb.append("loadLov()");
+            logger.debug(sb);                    
+            
+            // connect DB
+            clfBean.connect(lstSearchEnvironments.getValue().toString());                  
+            
+            // reset lists
+            lstSegment.removeAllItems();
+            lstMarket.removeAllItems();
+            lstTariff.removeAllItems();
+            lstService.removeAllItems();
+            
+            // load lists
+            List<String> lstLov = null;
+            ListSelect lstLovUI = null;
+            
+            for (int i = 0; i < 4; i++) {
+                
+                // get Lov from CLF
+                if (i == 0) {
+                    
+                    lstLov = clfBean.getLov("MKT_SEGMENT");
+                    lstLovUI = lstSegment;
+                    
+                }
+                else if (i == 1) {
+                    
+                    lstLov = clfBean.getLov("SU_MARKET");
+                    lstLovUI = lstMarket;
+                    
+                }
+                else if (i == 2) {
+                    
+                    lstLov = clfBean.getLov("TARIFF");
+                    lstLovUI = lstTariff;
+                    
+                }
+                else if (i == 3) {
+                    
+                    lstLov = clfBean.getLov("SERVICE");  
+                    lstLovUI = lstService;
+                    
+                }
+            
+                // fill list
+                if (lstLov != null) {
+                
+                    for (String sData : lstLov)
+                        lstLovUI.addItem(sData);
+                
+                }
+            
+            }
+            
+            // disconnect DB
+            clfBean.disconnect();
+           
+        }
+        catch (Exception ex) {
+            
+            logger.error("loadLov()", ex);
+            
+        }
+        
+    }       
+    
+    /**
+    * Search test data according to criteria
+    */
+    protected void searchData() {
+        
+        try {
+            
+            StringBuilder sb = new StringBuilder();
+            sb.append("searchData()");
+            logger.debug(sb);                    
+            
+            // segment
+            String sValue;
+            int iIdx;
+            int iSegment = -1;
+            
+            if (lstSegment.getValue() != null) {
+                
+                sValue = lstSegment.getValue().toString();
+                iIdx = sValue.indexOf(" ");
+                iSegment  = Integer.valueOf(sValue.substring(0, iIdx));
+                
+            }
+            
+            // market
+            int iMarket = -1;
+            
+            if (lstMarket.getValue() != null) {
+                
+                sValue = lstMarket.getValue().toString();
+                iIdx = sValue.indexOf(" ");
+                iMarket  = Integer.valueOf(sValue.substring(0, iIdx));
+                
+            }
+            
+            // tariff
+            int iTariff = -1;
+            
+            if (lstTariff.getValue() != null) {
+                
+                sValue = lstTariff.getValue().toString();
+                iIdx = sValue.indexOf(" ");
+                iTariff  = Integer.valueOf(sValue.substring(0, iIdx));
+                
+            }
+            
+            // service
+            int iService = -1;
+            
+            if (lstService.getValue() != null) {
+                
+                sValue = lstService.getValue().toString();
+                iIdx = sValue.indexOf(" ");
+                iService  = Integer.valueOf(sValue.substring(0, iIdx));
+                
+            }            
+            
+            if (iSegment == -1 && iMarket == -1 && iTariff == -1 && iService == -1)
+                return;
+            
+            // connect DB
+            String sEnvironment = lstSearchEnvironments.getValue().toString();
+            clfBean.connect(sEnvironment);  
+            dwhBean.connect(sEnvironment); 
+            amxBean.connect(sEnvironment); 
+            
+            // get data
+            idxFoundData.removeAllItems();
+            List<String> lstData = clfBean.searchData(iSegment, iMarket, iTariff, iService, chkOwnData.getValue());
+            
+            // fill table            
+            Object item;
+            int iExtIDCLF;
+            int iExtIDDB;
+            StringBuilder sbStatus;
+            String sStatusDB;
+            String sStatusDWH;
+            String sStatusAMX;
+            
+            if (lstData != null) {
+                
+                for (String sData : lstData) {
+                    
+                    // get CLF ExtID
+                    iExtIDCLF = clfBean.getSU(sData);
+                    
+                    // check DWH
+                    iExtIDDB = dwhBean.getSU(sData);
+                    sbStatus = new StringBuilder();
+
+                    if (iExtIDCLF == iExtIDDB) {
+                        
+                        sStatusDB = dwhBean.getStatus(sData);
+                        
+                        if (sStatusDB.equals("a"))
+                            sbStatus.append("OK - ");
+                        else
+                            sbStatus.append("NOK - ");
+                        
+                        sbStatus.append(sStatusDB);
+                        
+                    }
+                    else if (iExtIDDB == -1)
+                        sbStatus.append("NOK - N/A");
+                    else 
+                        sbStatus.append("NOK - EXT_ID:").append(iExtIDDB);
+                    
+                    sStatusDWH = sbStatus.toString();
+                    
+                    // check AMX
+                    iExtIDDB = amxBean.getSU(sData);
+                    sbStatus = new StringBuilder();
+
+                    if (iExtIDCLF == iExtIDDB) {
+                        
+                        sStatusDB = amxBean.getStatus(sData);
+                        
+                        if (sStatusDB.equals("A"))
+                            sbStatus.append("OK - ");
+                        else
+                            sbStatus.append("NOK - ");
+                        
+                        sbStatus.append(sStatusDB);
+                        
+                    }
+                    else if (iExtIDDB == -1)
+                        sbStatus.append("NOK - N/A");                    
+                    else
+                        sbStatus.append("NOK - EXT_ID:").append(iExtIDDB);
+                    
+                    sStatusAMX = sbStatus.toString();
+                    
+                    // add record
+                    item = idxFoundData.addItem();
+                    idxFoundData.getContainerProperty(item, "MSISDN").setValue(sData);
+                    idxFoundData.getContainerProperty(item, "EXT_ID").setValue(String.valueOf(iExtIDCLF));
+                    idxFoundData.getContainerProperty(item, "CLF").setValue("OK - a");
+                    idxFoundData.getContainerProperty(item, "DWH").setValue(sStatusDWH);
+                    idxFoundData.getContainerProperty(item, "AMX").setValue(sStatusAMX);
+                    
+                }
+                
+            }
+            
+            // disconnect DB
+            clfBean.disconnect();
+            dwhBean.disconnect();
+            amxBean.disconnect();
+           
+        }
+        catch (Exception ex) {
+            
+            logger.error("searchData()", ex);
+            
+        }
+        
+    }     
+    
+    /**
+    * Load data repository
+    */
+    protected void loadData() {
+        
+        try {
+            
+            StringBuilder sb = new StringBuilder();
+            sb.append("loadData()");
+            logger.debug(sb);                    
+            
+            // get data
+            idxDataRep.removeAllItems();
+            List<TestData> lstTestData = testCaseBean.getAllTestData();
+            
+            // fill table            
+            Object item;
+                
+            for (TestData testData : lstTestData) {
+                    
+                // add record
+                item = idxDataRep.addItem();
+                idxDataRep.getContainerProperty(item, "ID").setValue(testData.getID());
+                idxDataRep.getContainerProperty(item, "Data").setValue(String.valueOf(testData.getData()));
+                idxDataRep.getContainerProperty(item, "Title").setValue(testData.getTitle());
+                idxDataRep.getContainerProperty(item, "Status").setValue(testData.getStatus());
+                idxDataRep.getContainerProperty(item, "Environment").setValue(testData.getEnvironment());
+                    
+            }  
+            
+            tabDataRep.setVisibleColumns("Data", "Title", "Status", "Environment");
+            
+            // get test cases
+            lstDataDetailTestCase.removeAllItems();
+            List<TestCase> lstTestCases = testCaseBean.getAllTestCases();
+            
+            // fill list
+            for (TestCase testCase : lstTestCases)
+                lstDataDetailTestCase.addItem(testCase.getTitle());
+           
+        }
+        catch (Exception ex) {
+            
+            logger.error("loadData()", ex);
+            
+        }
+        
+    } 
+    
+    /**
+    * Load requested test data via testCaseBean
+    * Bean methods - getTestData
+    * @param iID group PK
+    */
+    protected void loadDataDetail(int iID) {
+        
+        try {
+            
+            StringBuilder sb = new StringBuilder();
+            sb.append("loadDataDetail() - params iID:").append(iID);
+            logger.debug(sb);
+            
+            // get data
+            TestData testData = testCaseBean.getTestData(iID);
+            
+            if (testData != null) {
+                
+                sb = new StringBuilder();
+                sb.append("Test data ").append(iID).append(" loaded");
+                logger.info(sb);
+                
+            }
+            else {
+                
+                sb = new StringBuilder();
+                sb.append("Test data ").append(iID).append(" not found");                
+                logger.error(sb);
+                
+            }
+            
+            // reset detail forms
+            resetDataDetail();
+            
+            // fill form
+            txtDataDetailID.setValue(String.valueOf(testData.getID()));
+            txtDataDetailData.setValue(String.valueOf(testData.getData()));
+            txtDataDetailTitle.setValue((testData.getTitle() == null) ? "" : testData.getTitle());            
+            lstDataDetailStatus.setValue(testData.getStatus());
+            lstDataDetailEnvironment.setValue(testData.getEnvironment());
+            lstDataDetailTestCase.setValue(testData.getTestCase());
+            
+            // enable update/delete
+            btnUpdateTestData.setEnabled(true);
+            btnDeleteTestData.setEnabled(true);            
+           
+        }
+        catch (Exception ex) {
+            
+            logger.error("loadTestCaseGroup()", ex);
+            
+        }
+        
+    }    
+    
+    /**
+    * Create requested test data via testCaseBean
+    * Bean methods - createTestData
+    * @param iData data
+    * @param sTitle title
+    * @param iStatus status
+    * @param sEnvironment environment
+    * @param sTestCase test case
+    * @param bReserve reserve
+    */
+    protected void createTestData(int iData, String sTitle, int iStatus, String sEnvironment, String sTestCase, Boolean bReserve) {
+        
+        try {
+            
+            StringBuilder sb = new StringBuilder();
+            sb.append("createTestData() - params iData:").append(iData).append(", sTitle:").append(sTitle);
+            sb.append(", iStatus:").append(iStatus).append(", sEnvironment:").append(sEnvironment).append(", sTestCase:").append(sTestCase);
+            sb.append(", bReserve:").append(bReserve);
+            logger.debug(sb);
+            
+            // form validation
+            txtDataDetailData.setComponentError(null);
+            btnCreateTestData.setComponentError(null);
+            
+            if (iData == -1) {
+                
+                txtDataDetailData.setComponentError(new UserError("Data is mandatory"));
+                return;
+                
+            }
+            else if (sTestCase.isEmpty()) {
+                
+                lstDataDetailTestCase.setComponentError(new UserError("Test case is mandatory"));
+                return;                
+                
+            }
+            
+            // create data
+            TestData testData = testCaseBean.createTestData(iData, sTitle, iStatus, sEnvironment, sTestCase);
+            
+            if (testData != null) {
+                
+                // fill ID
+                txtDataDetailID.setValue(String.valueOf(testData.getID()));
+                
+                // enable update/delete
+                btnUpdateTestData.setEnabled(true);
+                btnDeleteTestData.setEnabled(true);
+                
+                txtDataDetailData.setComponentError(null);
+                btnCreateTestData.setComponentError(null); 
+                
+                // reserve data
+                if (bReserve) 
+                    apBean.reserveData(iData);
+                
+                // reload data
+                loadData();
+                
+            }
+            else {
+                
+                sb = new StringBuilder();
+                sb.append("createTestData() - failed to create data ").append(sTitle);
+                logger.error(sb); 
+                btnCreateTestData.setComponentError(new UserError("Failed to create test data"));
+                
+            }
+            
+        }
+        catch (Exception ex) {
+            
+            btnCreateTestData.setComponentError(new UserError("Failed to create test data"));
+            logger.error("createTestData()", ex);
+            
+        }
+        
+    }  
+    
+    /**
+    * Update requested test ata via testCaseBean
+    * Bean methods - updateTestData
+    * @param iID ID
+    * @param iData data
+    * @param sTitle title
+    * @param iStatus status
+    * @param sEnvironment environment
+    * @param sTestCase test case
+    */
+    protected void updateTestData(int iID, int iData, String sTitle, int iStatus, String sEnvironment, String sTestCase) {
+        
+        try {
+            
+            StringBuilder sb = new StringBuilder();
+            sb.append("updateTestData() - params iID:").append(iID).append(", iData:").append(iData).append(", sTitle:").append(sTitle);
+            sb.append(", iStatus:").append(iStatus).append(", sEnvironment:").append(sEnvironment).append(", sTestCase:").append(sTestCase);
+            logger.debug(sb);
+            
+            // form validation
+            txtDataDetailID.setComponentError(null);
+            txtDataDetailData.setComponentError(null);
+            
+            if (!(iID > 0)) {
+                
+                txtDataDetailID.setComponentError(new UserError("Data ID is missing"));
+                return;
+                
+            }
+            else if (iData == -1) {
+                
+                txtDataDetailData.setComponentError(new UserError("Data is mandatory"));
+                return;
+            }
+            
+            // update group
+            boolean bUpdated = testCaseBean.updateTestData(iID, iData, sTitle, iStatus, sEnvironment, sTestCase);
+            
+            // reload test data
+            if (bUpdated) {
+                
+                txtDataDetailID.setComponentError(null);
+                txtDataDetailData.setComponentError(null);
+                
+                loadData();
+                
+            }          
+            
+        }             
+        catch (Exception ex) {
+            
+            logger.error("updateTestData()", ex);
+            
+        }
+        
+    }  
+    
+    /**
+    * Delete requested test data via testCaseBean
+    * Bean methods - deleteTestData
+    * @param iID data PK
+    */
+    protected void deleteTestData(int iID) {
+        
+        try {
+            
+            StringBuilder sb = new StringBuilder();
+            sb.append("deleteTestData() - params iID:").append(iID);
+            logger.debug(sb);
+            
+            // form validation
+            txtDataDetailID.setComponentError(null);
+            
+            if (!(iID > 0)) {
+                
+                txtDataDetailID.setComponentError(new UserError("Data ID is missing"));
+                return;
+                
+            }
+            
+            // delete group
+            boolean bDeleted = testCaseBean.deleteTestData(iID); 
+            
+            // reload test data
+            if (bDeleted) {
+            
+                resetDataDetail();
+                loadData();
+            
+            }
+            
+        }
+        catch (Exception ex) {
+            logger.error("deleteTestData()", ex);
+        }
+        
+    }      
 
 }

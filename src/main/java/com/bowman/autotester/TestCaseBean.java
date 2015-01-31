@@ -843,9 +843,16 @@ public class TestCaseBean {
                 // get test case runs
                 List<TestRun> lstTestRuns = getTestCaseRuns(iID);
                 
-                // delete test cases
+                // delete test runs
                 for (TestRun testRun : lstTestRuns)
-                    deleteTestRun(testRun.getID());                
+                    deleteTestRun(testRun.getID());    
+                
+                // get test case data
+                List<TestData> lstTestData = getTestCaseData(iID);
+                
+                // delete test case data
+                for (TestData testData : lstTestData)
+                    em.remove(testData);              
                 
                 // delete test case
                 em.remove(testCase);
@@ -1022,7 +1029,7 @@ public class TestCaseBean {
         }
         catch (Exception ex) {
             
-            logger.error("deleteTestRun()", ex);
+            logger.error("updateTestRun()", ex);
             return false;
             
         }
@@ -1271,6 +1278,53 @@ public class TestCaseBean {
     }  
     
     /**
+    * Read all test data from DB
+    * @return List of TestData 
+    */
+    public List<TestData> getAllTestData() {
+        
+        try {
+            
+            logger.debug("getAllTestData()");
+            TypedQuery<TestData> query = em.createNamedQuery("getAllTestData", TestData.class);
+            return query.getResultList();     
+        
+        }
+        catch (Exception ex) {
+            
+            logger.error("getAllTestData()", ex);
+            return null;
+            
+        }
+        
+    }    
+    
+    /**
+    * Read requested test data with ID from DB
+    * @param iID test data PK
+    * @return TestData 
+    */
+    public TestData getTestData(int iID) {
+        
+        try {
+            
+            StringBuilder sb = new StringBuilder();
+            sb.append("getTestData() - params iID:").append(iID);
+            logger.debug(sb);
+            
+            return em.find(TestData.class, iID);
+            
+        }
+        catch(Exception ex) {
+            
+            logger.error("getTestData()", ex);
+            return null;
+            
+        }
+        
+    }       
+    
+    /**
     * Get test data for given test case and environment
     * @param iTestRunID test run ID
     * @param sEnvironment environment
@@ -1299,7 +1353,184 @@ public class TestCaseBean {
             
         }
         
-    }       
+    }   
+    
+    /**
+    * Get test data for given test case
+    * @param iTestCaseID test case ID
+    * @return List of TestData 
+    */
+    public List<TestData> getTestCaseData(int iTestCaseID) {
+        
+        try {
+            
+            StringBuilder sb = new StringBuilder();
+            sb.append("getTestCaseData() - params iTestCaseID:").append(iTestCaseID);
+            logger.debug(sb);
+            
+            TypedQuery<TestData> query = em.createNamedQuery("getTestCaseData", TestData.class);
+            query.setParameter("test_case_id", iTestCaseID);
+            
+            return query.getResultList();
+            
+        }
+        catch(Exception ex) {
+            
+            logger.error("getTestCaseData()", ex);
+            return null;
+            
+        }
+        
+    }    
+    
+    /**
+    * Create requested test data in DB
+    * @param iData data
+    * @param sTitle title
+    * @param iStatus status
+    * @param sEnvironment environment    
+    * @param sTestCase test case
+    * @return TestData 
+    */
+    public TestData createTestData(int iData, String sTitle, int iStatus, String sEnvironment, String sTestCase) {
+        
+        try {
+            
+            StringBuilder sb = new StringBuilder();
+            sb.append("createTestData() - params iDara:").append(iData).append(", sTitle:").append(sTitle);
+            sb.append(", iStatus:").append(iStatus).append(", sEnvironment:").append(sEnvironment).append(", sTestCase").append(sTestCase);
+            logger.debug(sb);
+
+            // get test case
+            TestCase testCase = getTestCase(sTestCase);
+            
+            if (testCase != null) {
+                
+                // create test data
+                TestData testData = new TestData(iData, sTitle, sEnvironment, iStatus, testCase, null);
+                em.persist(testData);                
+                                
+                return testData;
+            }
+            else {
+                
+                sb = new StringBuilder();
+                sb.append("createTestData() - test case ").append(sTestCase).append(" not found");
+                logger.error(sb);
+                return null;
+                
+            }
+            
+        }
+        catch (Exception ex) {
+            
+            logger.error("createTestData()", ex);
+            return null;
+            
+        }
+        
+    }    
+    
+    /**
+    * Update requested test data in DB
+    * @param iID test data PK
+    * @param iData data
+    * @param sTitle title
+    * @param iStatus status
+    * @param sEnvironment environment
+    * @param sTestCase test case
+    * @return boolean 
+    */
+    public boolean updateTestData(int iID, int iData, String sTitle, int iStatus, String sEnvironment, String sTestCase) {
+        
+        try {
+
+            StringBuilder sb = new StringBuilder();
+            sb.append("updateTestData() - params iID:").append(iID).append(", iData:").append(iData).append(", sTitle:").append(sTitle);
+            sb.append(", iStatus:").append(iStatus).append(", sTestCase:").append(sTestCase);
+            logger.debug(sb);
+            
+            TestData testData = getTestData(iID);
+            
+            if (testData != null) {              
+                
+                // update test data
+                testData.setData(iData);
+                testData.setTitle(sTitle);
+                testData.setStatus(iStatus);
+                testData.setEnvironment(sEnvironment);
+                testData.setTestCase(getTestCase(sTestCase));
+                em.merge(testData);
+                
+                sb = new StringBuilder();
+                sb.append("Test data ").append(iID).append(" updated");
+                logger.info(sb);
+                
+                return true;
+                
+            }
+            else {
+                
+                sb = new StringBuilder();
+                sb.append("updateTestData() - test data ").append(iID).append(" not found");
+                logger.error(sb);
+                return false;
+                
+            }
+        }
+        catch (Exception ex) {
+            
+            logger.error("updateTestData()", ex);
+            return false;
+            
+        }
+        
+    }  
+    
+    /**
+    * Delete requested test data in DB
+    * @param iID test data PK
+    * @return boolean 
+    */
+    public boolean deleteTestData(int iID) {
+        
+        try {
+
+            StringBuilder sb = new StringBuilder();
+            sb.append("deleteTestData() - params iID:").append(iID);
+            logger.debug(sb);
+            
+            TestData testData = getTestData(iID);
+            
+            if (testData != null) {              
+                
+                // delete test data
+                em.remove(testData);
+                
+                sb = new StringBuilder();
+                sb.append("Test data ").append(iID).append(" deleted");
+                logger.info(sb);
+                
+                return true;
+                
+            }
+            else {
+                
+                sb = new StringBuilder();
+                sb.append("deleteTestData() - test data ").append(iID).append(" not found");
+                logger.error(sb);
+                return false;
+                
+            }
+        }
+        catch (Exception ex) {
+            
+            logger.error("deleteTestData()", ex);
+            return false;
+            
+        }
+        
+    }      
     
     /**
     * Run auto test cases

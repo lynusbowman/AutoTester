@@ -3,6 +3,8 @@
   <Properties>
     <!--PROD-->
     <!--Property name="log-path">/projects/var/log/autotester</Property-->
+    <!--TEST-->
+    <!--Property name="log-path">/home/lynus/private/autotester/log</Property-->    
     <!--DEV-->
     <Property name="log-path">d:/private_files/prace/kody/Java/mavenproject1/AutoTester/target/log</Property>
   </Properties>

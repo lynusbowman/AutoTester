@@ -7,7 +7,7 @@ Utilities util = new Utilities(logID)
               Data
  **********************************/
 level = "SU"
-SU = 41999702
+SU = util.getTestData(env)
 ID = 430
 attrIDs = [1478, 1479, 1480]
 attrValues = [0, "Z1-3=1000,", "INT=1000,CZ=1000,"]

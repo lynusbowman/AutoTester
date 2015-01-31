@@ -326,7 +326,7 @@ public class DWHBean {
             ResultSet rs = stmt.executeQuery(sbQuery.toString());
             
             // parse result
-            if (rs == null) {
+            if (!rs.next()) {
                 
                 stmt.close();
                 return -1;
@@ -334,7 +334,6 @@ public class DWHBean {
             }
             else {
                 
-                rs.next();
                 int iCU = rs.getInt("qcus_cu_id");
                 rs.close();
                 stmt.close();
@@ -376,7 +375,7 @@ public class DWHBean {
             ResultSet rs = stmt.executeQuery(sbQuery.toString());
             
             // parse result
-            if (rs == null) {
+            if (!rs.next()) {
                 
                 stmt.close();
                 return -1;
@@ -384,7 +383,6 @@ public class DWHBean {
             }
             else {
                 
-                rs.next();
                 int iLE = rs.getInt("qcus_le_id");
                 rs.close();
                 stmt.close();
@@ -426,7 +424,7 @@ public class DWHBean {
             ResultSet rs = stmt.executeQuery(sbQuery.toString());
             
             // parse result
-            if (rs == null) {
+            if (!rs.next()) {
                 
                 stmt.close();
                 return -1;
@@ -434,7 +432,6 @@ public class DWHBean {
             }
             else {
                 
-                rs.next();
                 int iOU = rs.getInt("qcus_parent_id");
                 rs.close();
                 stmt.close();
@@ -475,7 +472,7 @@ public class DWHBean {
             ResultSet rs = stmt.executeQuery(sbQuery.toString());
             
             // parse result
-            if (rs == null) {
+            if (!rs.next()) {
                 
                 stmt.close();
                 return -1;
@@ -483,7 +480,6 @@ public class DWHBean {
             }
             else {
                 
-                rs.next();
                 int iEU = rs.getInt("qsub_qcus_id");
                 rs.close();
                 stmt.close();
@@ -524,7 +520,7 @@ public class DWHBean {
             ResultSet rs = stmt.executeQuery(sbQuery.toString());
             
             // parse result
-            if (rs == null) {
+            if (!rs.next()) {
                 
                 stmt.close();
                 return -1;
@@ -532,7 +528,6 @@ public class DWHBean {
             }
             else {
                 
-                rs.next();
                 int iBA = rs.getInt("qsub_qcuscac_id");
                 rs.close();
                 stmt.close();
@@ -566,14 +561,14 @@ public class DWHBean {
             // execute query
             StringBuilder sbQuery = new StringBuilder();
             sbQuery.append("SELECT qsub_id FROM ");
-            sbQuery.append("(SELECT qsub_id FROM sy_qsub.qsub_sub_life WHERE qsub_msisdn = '").append(sMSISDN).append("' ORDER BY modify_dat DESC) ");
+            sbQuery.append("(SELECT qsub_id FROM sy_qsub.qsub_sub_life WHERE qsub_msisdn = '").append(sMSISDN).append("' ORDER BY qsub_status_change_dat DESC) ");
             sbQuery.append("WHERE rownum = 1");
             
             Statement stmt = con.createStatement();
             ResultSet rs = stmt.executeQuery(sbQuery.toString());
             
             // parse result
-            if (rs == null) {
+            if (!rs.next()) {
                 
                 stmt.close();
                 return -1;
@@ -581,7 +576,6 @@ public class DWHBean {
             }
             else {
                 
-                rs.next();
                 int iSU = rs.getInt("qsub_id");
                 rs.close();
                 stmt.close();
@@ -615,14 +609,14 @@ public class DWHBean {
             // execute query
             StringBuilder sbQuery = new StringBuilder();
             sbQuery.append("SELECT qsub_qsubst_code FROM ");
-            sbQuery.append("(SELECT qsub_qsubst_code FROM sy_qsub.qsub_sub_life WHERE qsub_msisdn = '").append(sMSISDN).append("' ORDER BY modify_dat DESC) ");
+            sbQuery.append("(SELECT qsub_qsubst_code FROM sy_qsub.qsub_sub_life WHERE qsub_msisdn = '").append(sMSISDN).append("' ORDER BY qsub_status_change_dat DESC) ");
             sbQuery.append("WHERE rownum = 1");
             
             Statement stmt = con.createStatement();
             ResultSet rs = stmt.executeQuery(sbQuery.toString());
             
             // parse result
-            if (rs == null) {
+            if (!rs.next()) {
                 
                 stmt.close();
                 return null;
@@ -630,7 +624,6 @@ public class DWHBean {
             }
             else {
                 
-                rs.next();
                 String sStatus = rs.getString("qsub_qsubst_code");
                 rs.close();
                 stmt.close();
@@ -673,7 +666,7 @@ public class DWHBean {
             ResultSet rs = stmt.executeQuery(sbQuery.toString());
             
             // parse result
-            if (rs == null) {
+            if (!rs.next()) {
                 
                 stmt.close();
                 return null;
@@ -681,7 +674,6 @@ public class DWHBean {
             }
             else {
                 
-                rs.next();
                 int iID = Integer.valueOf(rs.getString("qcusbcy_code"));
                 String sTitle = rs.getString("qcusbcy_des");
                 rs.close();
@@ -725,7 +717,7 @@ public class DWHBean {
             ResultSet rs = stmt.executeQuery(sbQuery.toString());
             
             // parse result
-            if (rs == null) {
+            if (!rs.next()) {
                 
                 stmt.close();
                 return null;
@@ -733,7 +725,6 @@ public class DWHBean {
             }
             else {
                 
-                rs.next();
                 int iID = Integer.valueOf(rs.getString("qcusmks_id"));
                 String sTitle = rs.getString("qcusmks_des");
                 rs.close();
@@ -776,7 +767,7 @@ public class DWHBean {
             ResultSet rs = stmt.executeQuery(sbQuery.toString());
             
             // parse result
-            if (rs == null) {
+            if (!rs.next()) {
                 
                 stmt.close();
                 return null;
@@ -784,7 +775,6 @@ public class DWHBean {
             }
             else {
                 
-                rs.next();
                 int iID = Integer.valueOf(rs.getString("qsubm_id"));
                 String sTitle = rs.getString("qsubm_des");
                 rs.close();
@@ -827,7 +817,7 @@ public class DWHBean {
             ResultSet rs = stmt.executeQuery(sbQuery.toString());
             
             // parse result
-            if (rs == null) {
+            if (!rs.next()) {
                 
                 stmt.close();
                 return null;
@@ -835,7 +825,6 @@ public class DWHBean {
             }
             else {
                 
-                rs.next();
                 int iID = Integer.valueOf(rs.getString("qprotar_id"));
                 String sTitle = rs.getString("qprotar_des");
                 rs.close();
@@ -879,7 +868,7 @@ public class DWHBean {
             ResultSet rs = stmt.executeQuery(sbQuery.toString());
             
             // parse result
-            if (rs == null) {
+            if (!rs.next()) {
                 
                 stmt.close();
                 return null;
@@ -887,7 +876,6 @@ public class DWHBean {
             }
             else {
                 
-                rs.next();
                 int iID = Integer.valueOf(rs.getString("qsubcd_id"));
                 String sTitle = rs.getString("qsubcd_des");
                 rs.close();
@@ -1200,7 +1188,7 @@ public class DWHBean {
             ResultSet rs = stmt.executeQuery(sbQuery.toString());
             
             // parse result
-            if (rs == null) {
+            if (!rs.next()) {
                 
                 stmt.close();
                 return null;
@@ -1208,7 +1196,6 @@ public class DWHBean {
             }
             else {
 
-                rs.next();
                 int iID = rs.getInt("service_id");
                 int iInstanceID = rs.getInt("extid_inst");
                 String sStatus = rs.getString("status");
@@ -1286,7 +1273,7 @@ public class DWHBean {
             ResultSet rs = stmt.executeQuery(sbQuery.toString());
             
             // parse result
-            if (rs == null) {
+            if (!rs.next()) {
                 
                 stmt.close();
                 return null;
@@ -1294,7 +1281,6 @@ public class DWHBean {
             }
             else {
                 
-                rs.next();
                 int iID = Integer.valueOf(rs.getString("qprotar_id"));
                 String sTitle = rs.getString("qprotar_des");
                 String sCzTitle = rs.getString("qprotar_cz_des");
@@ -1354,7 +1340,7 @@ public class DWHBean {
             ResultSet rs = stmt.executeQuery(sbQuery.toString());
             
             // parse result
-            if (rs == null) {
+            if (!rs.next()) {
                 
                 stmt.close();
                 return null;
@@ -1362,7 +1348,6 @@ public class DWHBean {
             }
             else {
                 
-                rs.next();
                 int iID = Integer.valueOf(rs.getString("qpronpo_id"));
                 String sTitle = rs.getString("qpronpo_des");
                 int iServiceID = Integer.valueOf(rs.getString("qpronpo_qprosr_id"));
@@ -1409,7 +1394,7 @@ public class DWHBean {
             ResultSet rs = stmt.executeQuery(sbQuery.toString());
             
             // parse result
-            if (rs == null) {
+            if (!rs.next()) {
                 
                 stmt.close();
                 return null;
@@ -1417,7 +1402,6 @@ public class DWHBean {
             }
             else {
                 
-                rs.next();
                 int iID = Integer.valueOf(rs.getString("qprotarp_id"));
                 String sTitle = rs.getString("qprotarp_des");
                 String sDescription = rs.getString("qprotarp_long_des");
@@ -1471,7 +1455,7 @@ public class DWHBean {
             ResultSet rs = stmt.executeQuery(sbQuery.toString());
             
             // parse result
-            if (rs == null) {
+            if (!rs.next()) {
                 
                 stmt.close();
                 return null;
@@ -1479,7 +1463,6 @@ public class DWHBean {
             }
             else {
                 
-                rs.next();
                 String sID = rs.getString("qprodp_code");
                 String sTitle = rs.getString("qprodp_des");
                 rs.close();
@@ -1521,7 +1504,7 @@ public class DWHBean {
             ResultSet rs = stmt.executeQuery(sbQuery.toString());
             
             // parse result
-            if (rs == null) {
+            if (!rs.next()) {
                 
                 stmt.close();
                 return null;
@@ -1529,7 +1512,6 @@ public class DWHBean {
             }
             else {
                 
-                rs.next();
                 int iID = Integer.valueOf(rs.getString("qprorof_id"));
                 String sTitle = rs.getString("qprorof_des");
                 String sOption = rs.getString("qprorof_qprorto_code");

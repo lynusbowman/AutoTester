@@ -31,9 +31,13 @@ import javax.persistence.SequenceGenerator;
 @Table(name = "TEST_DATA")
 @SequenceGenerator(name = "TEST_DATA_SEQ", allocationSize = 1)
 @NamedQueries({
+    @NamedQuery(name = "getAllTestData",
+                query = "SELECT a FROM TestData a ORDER BY a.sEnvironment, a.iData"),    
     @NamedQuery(name = "getTestData",
                 query = "SELECT a FROM TestData a WHERE a.testCase.iID = :test_case_id " +
                         "AND a.sEnvironment = :environment AND a.iStatus = 1"),   
+    @NamedQuery(name = "getTestCaseData",
+                query = "SELECT a FROM TestData a WHERE a.testCase.iID = :test_case_id"),      
 })
 public class TestData {   
     

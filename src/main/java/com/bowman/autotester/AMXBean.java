@@ -215,7 +215,7 @@ public class AMXBean {
             ResultSet rs = stmt.executeQuery(sbQuery.toString());
             
             // parse result
-            if (rs == null) {
+            if (!rs.next()) {
                 
                 stmt.close();
                 return -1;
@@ -223,7 +223,6 @@ public class AMXBean {
             }
             else {
                 
-                rs.next();
                 int iCU = rs.getInt("external_id");
                 stmt.close();
                 return iCU;
@@ -264,7 +263,7 @@ public class AMXBean {
             ResultSet rs = stmt.executeQuery(sbQuery.toString());
             
             // parse result
-            if (rs == null) {
+            if (!rs.next()) {
                 
                 stmt.close();
                 return -1;
@@ -272,7 +271,6 @@ public class AMXBean {
             }
             else {
                 
-                rs.next();
                 int iSU = rs.getInt("external_id");
                 stmt.close();
                 return iSU;
@@ -284,6 +282,54 @@ public class AMXBean {
             
             logger.error("getSU()", ex);
             return -1;
+            
+        }
+        
+    }  
+    
+    /**
+    * Get status
+    * @param sMSISDN MSISDN
+    * @return String
+    */
+    public String getStatus(String sMSISDN) {
+        
+        try {
+
+            StringBuilder sb = new StringBuilder();
+            sb.append("getStatus() - params sMSISDN:").append(sMSISDN);
+            logger.debug(sb);
+
+            // execute query
+            StringBuilder sbQuery = new StringBuilder();
+            sbQuery.append("SELECT sub_status FROM ");
+            sbQuery.append("(SELECT sub_status FROM TMCDBO2.SUBSCRIBER WHERE prim_resource_val = '420").append(sMSISDN).append("' ORDER BY effective_date DESC) ");
+            sbQuery.append("WHERE rownum = 1");
+            
+            Statement stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery(sbQuery.toString());
+            
+            // parse result
+            if (!rs.next()) {
+                
+                stmt.close();
+                return null;
+                
+            }
+            else {
+                
+                String sStatus = rs.getString("sub_status");
+                rs.close();
+                stmt.close();
+                return sStatus;
+                
+            }
+            
+        }
+        catch (Exception ex) {
+            
+            logger.error("getStatus()", ex);
+            return null;
             
         }
         

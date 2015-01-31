@@ -51,7 +51,7 @@ util.log("FINISH")
 result = 1
 
 }
-catch (AssertionError e) {
+catch (Error e) {
 
 // teardown
 util.ws.disconnect()

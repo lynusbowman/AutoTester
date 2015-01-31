@@ -162,6 +162,14 @@ public class APBean {
                 sPass = properties.getProperty("test2APPass");
                 
             }
+            // reservation DB
+            else if (sEnvironment.equals("reserve")) {
+                
+                sUrl = properties.getProperty("reserveDBUrl");
+                sUser = properties.getProperty("reserveDBUser");
+                sPass = properties.getProperty("reserveDBPass");
+                
+            }            
             
             // connect
             Class.forName("oracle.jdbc.driver.OracleDriver");
@@ -419,7 +427,7 @@ public class APBean {
             ResultSet rs = stmt.executeQuery(sbQuery.toString());
             
             // parse result
-            if (rs == null) {
+            if (!rs.next()) {
                 
                 stmt.close();
                 return null;
@@ -427,7 +435,6 @@ public class APBean {
             }
             else {
                 
-                rs.next();
                 int iID = Integer.valueOf(rs.getString("qprotar_id"));
                 String sTitle = rs.getString("qprotar_des");
                 String sCzTitle = rs.getString("qprotar_cz_des");
@@ -487,7 +494,7 @@ public class APBean {
             ResultSet rs = stmt.executeQuery(sbQuery.toString());
             
             // parse result
-            if (rs == null) {
+            if (!rs.next()) {
                 
                 stmt.close();
                 return null;
@@ -495,7 +502,6 @@ public class APBean {
             }
             else {
                 
-                rs.next();
                 int iID = Integer.valueOf(rs.getString("qpronpo_id"));
                 String sTitle = rs.getString("qpronpo_des");
                 int iServiceID = -1;
@@ -542,7 +548,7 @@ public class APBean {
             ResultSet rs = stmt.executeQuery(sbQuery.toString());
             
             // parse result
-            if (rs == null) {
+            if (!rs.next()) {
                 
                 stmt.close();
                 return null;
@@ -550,7 +556,6 @@ public class APBean {
             }
             else {
                 
-                rs.next();
                 int iID = Integer.valueOf(rs.getString("qprotarp_id"));
                 String sTitle = rs.getString("qprotarp_des");
                 String sDescription = rs.getString("qprotarp_long_des");
@@ -604,7 +609,7 @@ public class APBean {
             ResultSet rs = stmt.executeQuery(sbQuery.toString());
             
             // parse result
-            if (rs == null) {
+            if (!rs.next()) {
                 
                 stmt.close();
                 return null;
@@ -612,7 +617,6 @@ public class APBean {
             }
             else {
                 
-                rs.next();
                 String sID = rs.getString("qprodp_code");
                 String sTitle = rs.getString("qprodp_des");
                 rs.close();
@@ -654,7 +658,7 @@ public class APBean {
             ResultSet rs = stmt.executeQuery(sbQuery.toString());
             
             // parse result
-            if (rs == null) {
+            if (!rs.next()) {
                 
                 stmt.close();
                 return null;
@@ -662,7 +666,6 @@ public class APBean {
             }
             else {
                 
-                rs.next();
                 int iID = Integer.valueOf(rs.getString("qprorof_id"));
                 String sTitle = rs.getString("qprorof_des");
                 String sOption = rs.getString("qprorof_qprorto_code");
@@ -790,6 +793,45 @@ public class APBean {
             
         }                
         
-    }       
+    }  
+    
+    /**
+    * Reserve data
+    * @param iData data
+    */
+    public void reserveData(int iData) {
+        
+        try {
+            
+            StringBuilder sb = new StringBuilder();
+            sb.append("reserveData() - params iData:").append(iData);
+            logger.debug(sb);
+
+            // connect to reservation DB
+            connect("reserve");
+            
+            // execute query
+            StringBuilder sbQuery = new StringBuilder();
+            sbQuery.append("INSERT INTO TST_DATA.DATA_RESERVATION (rectype, status, msisdn, blevel, reserve_from, reqtype, ");
+            sbQuery.append("req_des, req_owner, data_owner, apl_des, description) VALUES ");
+            sbQuery.append("(1, 'R', '").append(iData).append("', 1, sysdate, 1, 'Automated tests', 'AUTOTESTER', 'AUTOTESTER', ");
+            sbQuery.append("'KISS', 'Automated tests')");
+            
+            Statement stmt = con.createStatement();
+            
+            if (stmt.executeUpdate(sbQuery.toString()) == 0)
+                logger.error("reserveData() - failed to reserve data");
+            
+            // disconnect from reservation DB
+            disconnect();
+            
+        }
+        catch (Exception ex) {
+
+            logger.error("reserveData()", ex);
+            
+        }  
+        
+    }
     
 }
