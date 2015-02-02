@@ -2681,7 +2681,7 @@ public class AutoTesterUI extends UI
             txtDataDetailTitle.setValue((testData.getTitle() == null) ? "" : testData.getTitle());            
             lstDataDetailStatus.setValue(testData.getStatus());
             lstDataDetailEnvironment.setValue(testData.getEnvironment());
-            lstDataDetailTestCase.setValue(testData.getTestCase());
+            lstDataDetailTestCase.setValue(testData.getTestCase().getTitle());
             
             // enable update/delete
             btnUpdateTestData.setEnabled(true);
