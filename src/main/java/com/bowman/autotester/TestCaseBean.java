@@ -34,6 +34,10 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage.RecipientType;
 import javax.mail.Transport;
 
+import java.sql.DriverManager;
+import java.sql.Connection;
+import java.sql.Statement;
+
 /**
 * Stateless bean, manages TEST database
 * 
@@ -51,6 +55,12 @@ public class TestCaseBean {
     
     // logger
     private final static Logger logger = LogManager.getLogger(TestCaseBean.class.getName()); 
+    
+    // connection
+    private String sUrl;
+    private String sUser;
+    private String sPass;   
+    private Connection con;      
     
     /**
     * Status
@@ -618,16 +628,19 @@ public class TestCaseBean {
     * @param sDescription description
     * @param sFilename filename
     * @param iGroupID group FK
+    * @param sApplication application
     * @param bAuto auto
     * @return TestCase 
     */
-    public TestCase createTestCase(String sTitle, String sDescription, String sFilename, int iGroupID, boolean bAuto) {
+    public TestCase createTestCase(String sTitle, String sDescription, String sFilename, int iGroupID, String sApplication,
+                                   boolean bAuto) {
         
         try {
             
             StringBuilder sb = new StringBuilder();
             sb.append("createTestCase() - params sTitle:").append(sTitle).append(", sDescription:").append(sDescription);
-            sb.append(", sFilename:").append(sFilename).append(", iGroupID:").append(iGroupID).append(", bAuto:").append(bAuto);
+            sb.append(", sFilename:").append(sFilename).append(", iGroupID:").append(iGroupID).append(", sApplication:");
+            sb.append(sApplication).append(", bAuto:").append(bAuto);
             logger.debug(sb);
             
             // duplicate check
@@ -656,8 +669,8 @@ public class TestCaseBean {
                         file.setWritable(true, false);
                         
                         // create test case
-                        testCase = new TestCase(sTitle, sDescription, sFilename, testCaseGroup, bAuto, Status.NOTRUN.toString(), 
-                                                new Date(), null, null);
+                        testCase = new TestCase(sTitle, sDescription, sFilename, testCaseGroup, sApplication, bAuto, 
+                                                Status.NOTRUN.toString(), new Date(), null, null);
                         em.persist(testCase);
                 
                         sb = new StringBuilder();
@@ -712,16 +725,19 @@ public class TestCaseBean {
     * @param sDescription description
     * @param sFilename filename
     * @param iGroupID group FK
+    * @param sApplication application
     * @param bAuto auto
     * @return boolean 
     */
-    public boolean updateTestCase (int iID, String sTitle, String sDescription, String sFilename, int iGroupID, boolean bAuto) {
+    public boolean updateTestCase (int iID, String sTitle, String sDescription, String sFilename, int iGroupID, 
+                                   String sApplication, boolean bAuto) {
         
         try {
             
             StringBuilder sb = new StringBuilder();
             sb.append("updateTestCase() - params iID:").append(iID).append(", sTitle:").append(sTitle).append(", sDescrition:").append(sDescription);
-            sb.append(", sFilename:").append(sFilename).append(", iGroupID:").append(iGroupID).append(", bAuto:").append(bAuto);
+            sb.append(", sFilename:").append(sFilename).append(", iGroupID:").append(iGroupID).append(", sApplication:");
+            sb.append(sApplication).append(", bAuto:").append(bAuto);
             logger.debug(sb);
             
             TestCase testCase = getTestCase(iID);
@@ -764,6 +780,7 @@ public class TestCaseBean {
                     testCase.setDescription(sDescription);
                     testCase.setFilename(sFilename);
                     testCase.setTestCaseGroup(testCaseGroup);
+                    testCase.setApplication(sApplication);
                     testCase.setAuto(bAuto);
                     testCase.setModifyDate(new Date());
                     em.merge(testCase);
@@ -1553,9 +1570,19 @@ public class TestCaseBean {
             Properties properties = loadConfig();
             String sEnvironment = properties.getProperty("autoEnvironment");
             
+            // connect to TMON DB            
+            connectTMON();
+            
             // run test cases
-            for (TestCase testCase : lstTestCases)
+            for (TestCase testCase : lstTestCases) {
+                
                 runTestCase(testCase.getID(), sEnvironment);
+                storeResult(testCase.getID());
+                
+            }
+            
+            // disconnect from TMON DB
+            disconnectTMON();
             
             // mail report
             sendReport();
@@ -1795,6 +1822,130 @@ public class TestCaseBean {
             
         }
         
-    }            
+    }  
+    
+    /**
+    * Connect to TMON database
+    * @return boolean 
+    */
+    public boolean connectTMON() {
+        
+        try {
+
+            StringBuilder sb = new StringBuilder();
+            sb.append("connectTMON()");
+            logger.debug(sb);                    
+                
+            // connection string
+            Properties properties = loadConfig();
+            
+            sUrl = properties.getProperty("tmonDBUrl");
+            sUser = properties.getProperty("tmonDBUser");
+            sPass = properties.getProperty("tmonDBPass");            
+            
+            // connect
+            Class.forName("com.mysql.jdbc.Driver");
+            con = DriverManager.getConnection(sUrl, sUser, sPass);
+            
+            return true;
+
+        }
+        catch (Exception ex) {
+            
+            logger.error("connect()", ex);
+            return false;
+            
+        }
+        
+    } 
+    
+    /**
+    * Disconnect from TMON database
+    * @return boolean 
+    */
+    public boolean disconnectTMON() {
+        
+        try {
+
+            logger.debug("disconnectTMON()");
+            con.close();
+            
+            return true;
+
+        }
+        catch (Exception ex) {
+            
+            logger.error("disconnectTMON()", ex);
+            return false;
+            
+        }
+        
+    }       
+    
+    /**
+    * Store result
+    * @param iTestCaseID test case ID
+    */
+    public void storeResult(int iTestCaseID) {
+        
+        try {
+            
+            StringBuilder sb = new StringBuilder();
+            sb.append("storeResult() - params iTestCaseID:").append(iTestCaseID);
+            logger.debug(sb);
+            
+            // get details
+            TestCase testCase = getTestCase(iTestCaseID);
+            TestRun testRun = getTestCaseRuns(iTestCaseID).get(0);  
+            
+            // test set
+            String sTestEnv = testRun.getEnvironment();
+            String sTestSystem = "integrationtest";
+            String sTestAppl = testCase.getApplication();
+            String sTestDescription = testCase.getTitle();
+            StringBuilder sbTestSet = new StringBuilder();
+            
+            sbTestSet.append(sTestEnv).append("/").append(sTestSystem).append("/");
+            sbTestSet.append(sTestAppl).append("/").append(testCase.getTestCaseGroup().getTitle());
+            
+            // test input 
+            List<TestData> lstTestData = getTestCaseData(iTestCaseID);
+            String sTestInput = (lstTestData.isEmpty()) ? "" : String.valueOf(lstTestData.get(0).getData());
+            
+            // test output
+            List<TestRunLog> lstTestRunLog = getTestRunLogs(testRun.getID());
+            StringBuilder sbTestOutput = new StringBuilder();
+            
+            for (TestRunLog testRunLog : lstTestRunLog)
+                sbTestOutput.append("RESULT:").append(testRunLog.getResult()).append(", LOG:").append(testRunLog.getLog()).append("\n");
+            
+            // data conversion
+            long lTestStartedTime = testRun.getRunDate().getTime()/1000;
+            long lTestFinishedTime = lTestStartedTime + testRun.getDuration()/1000;
+            int iTestResolution = (testRun.getStatus().equals("PASSED")) ? 0 : 1;
+            
+            // execute query
+            StringBuilder sbQuery = new StringBuilder();
+            sbQuery.append("INSERT INTO tmon01.test_run (test_env, test_system, test_appl, test_set, test_type, test_desc, ");
+            sbQuery.append("test_input, test_output, test_started_time, test_finished_time, test_status, test_resolution, ");
+            sbQuery.append("test_executor, test_owner, test_time_window) VALUES ('").append(sTestEnv);
+            sbQuery.append("', '").append(sTestSystem).append("', '").append(sTestAppl).append("', '").append(sbTestSet.toString());
+            sbQuery.append("', 1, '").append(sTestDescription).append("', '").append(sTestInput);
+            sbQuery.append("', '").append(sbTestOutput.toString()).append("', ").append(lTestStartedTime).append(", ");
+            sbQuery.append(lTestFinishedTime).append(", 1, ").append(iTestResolution).append(", 'Petr Rasek', 'Petr Rasek', -1)");
+            
+            Statement stmt = con.createStatement();
+            
+            if (stmt.executeUpdate(sbQuery.toString()) == 0)
+                logger.error("storeResult() - failed to store result");
+            
+        }
+        catch (Exception ex) {
+
+            logger.error("storeResult()", ex);
+            
+        }  
+        
+    }    
     
 }

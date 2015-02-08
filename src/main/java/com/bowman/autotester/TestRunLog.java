@@ -36,7 +36,7 @@ import javax.persistence.Lob;
 @SequenceGenerator(name = "TEST_RUN_LOG_SEQ", allocationSize = 1)
 @NamedQueries({
     @NamedQuery(name = "getTestRunLogs",
-                query = "SELECT a FROM TestRunLog a WHERE a.testRun.iID = :test_run_id "),
+                query = "SELECT a FROM TestRunLog a WHERE a.testRun.iID = :test_run_id ORDER BY a.iID"),
 })
 public class TestRunLog {   
     

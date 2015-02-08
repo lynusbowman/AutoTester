@@ -121,7 +121,8 @@ public class AutoTesterUI extends UI
     Label lblTestCase;
     TextField txtTestCaseID;
     TextField txtTestCaseTitle;
-    TextField txtTestCaseStatus;       
+    TextField txtTestCaseStatus; 
+    TextField txtTestCaseApplication;
     HorizontalLayout frmTestCaseDates;
     TextField txtTestCaseCreateDate;
     TextField txtTestCaseModifyDate;
@@ -572,7 +573,7 @@ public class AutoTesterUI extends UI
             txtTestCaseStatus = new TextField("Status");
             txtTestCaseStatus.setWidth("125px");
             txtTestCaseStatus.setEnabled(false);
-            frmTestCaseDetail.addComponent(txtTestCaseStatus);                      
+            frmTestCaseDetail.addComponent(txtTestCaseStatus);                          
             
             // dates layout
             frmTestCaseDates = new HorizontalLayout();
@@ -590,7 +591,13 @@ public class AutoTesterUI extends UI
             txtTestCaseModifyDate.setWidth("125px");
             txtTestCaseModifyDate.setDescription("Modify date");            
             txtTestCaseModifyDate.setEnabled(false);
-            frmTestCaseDates.addComponent(txtTestCaseModifyDate);            
+            frmTestCaseDates.addComponent(txtTestCaseModifyDate);  
+            
+            // application field
+            txtTestCaseApplication = new TextField("Application");
+            txtTestCaseApplication.setWidth("250px");
+            txtTestCaseApplication.setRequired(true);
+            frmTestCaseDetail.addComponent(txtTestCaseApplication);              
         
             // description
             txtTestCaseDescription = new TextArea("Description");
@@ -859,6 +866,7 @@ public class AutoTesterUI extends UI
                                            txtTestCaseDescription.getValue(),
                                            txtTestCaseFilename.getValue(),
                                            Integer.parseInt(txtTestCaseGroupID.getValue()),
+                                           txtTestCaseApplication.getValue(),
                                            chkTestCaseAuto.getValue());
                             
                         }                        
@@ -876,6 +884,7 @@ public class AutoTesterUI extends UI
                                            txtTestCaseDescription.getValue(),
                                            txtTestCaseFilename.getValue(),
                                            Integer.parseInt(txtTestCaseGroupID.getValue()),
+                                           txtTestCaseApplication.getValue(),
                                            chkTestCaseAuto.getValue());
                             
                         }                        
@@ -1305,7 +1314,8 @@ public class AutoTesterUI extends UI
             txtTestCaseID.setValue(String.valueOf(testCase.getID()));
             txtTestCaseTitle.setValue(testCase.getTitle());
             txtTestCaseStatus.setValue(testCase.getStatus());
-            txtTestCaseCreateDate.setValue(dateFormat.format(testCase.getCreateDate()));            
+            txtTestCaseCreateDate.setValue(dateFormat.format(testCase.getCreateDate()));      
+            txtTestCaseApplication.setValue(testCase.getApplication());
             txtTestCaseDescription.setValue(testCase.getDescription());
             txtTestCaseFilename.setValue(testCase.getFilename());
             chkTestCaseAuto.setValue(testCase.getAuto());
@@ -1405,6 +1415,7 @@ public class AutoTesterUI extends UI
             txtTestCaseID.setValue("");
             txtTestCaseTitle.setValue("");
             txtTestCaseStatus.setValue("");
+            txtTestCaseApplication.setValue("");
             txtTestCaseCreateDate.setValue("");
             txtTestCaseModifyDate.setValue("");
             txtTestCaseDescription.setValue("");
@@ -1413,8 +1424,9 @@ public class AutoTesterUI extends UI
             
             txtTestCaseID.setComponentError(null);
             txtTestCaseTitle.setComponentError(null);
+            txtTestCaseApplication.setComponentError(null);
             txtTestCaseDescription.setComponentError(null);
-            txtTestCaseFilename.setComponentError(null);
+            txtTestCaseFilename.setComponentError(null);            
             btnCreateTestCase.setComponentError(null);
             btnUpdateTestCase.setComponentError(null);
             btnDeleteTestCase.setComponentError(null);
@@ -1618,20 +1630,24 @@ public class AutoTesterUI extends UI
     * @param sDescription description
     * @param sFilename filename
     * @param iGroupID group PK
+    * @param sApplication application
     * @param bAuto auto
     */
-    protected void createTestCase(String sTitle, String sDescription, String sFilename, int iGroupID, boolean bAuto) {
+    protected void createTestCase(String sTitle, String sDescription, String sFilename, int iGroupID, String sApplication,
+                                  boolean bAuto) {
         
         try {
             
             StringBuilder sb = new StringBuilder();
             sb.append("createTestCase() - params sTitle:").append(sTitle).append(", sDescription:").append(sDescription);
-            sb.append(", sFilename:").append(sFilename).append(", iGroupID:").append(iGroupID).append(", bAuto:").append(bAuto);
+            sb.append(", sFilename:").append(sFilename).append(", iGroupID:").append(iGroupID).append(", sApplication:");
+            sb.append(sApplication).append(", bAuto:").append(bAuto);
             logger.debug(sb);
             
             // form validation
             txtTestCaseGroupID.setComponentError(null);
             txtTestCaseTitle.setComponentError(null);
+            txtTestCaseApplication.setComponentError(null);
             txtTestCaseDescription.setComponentError(null); 
             txtTestCaseFilename.setComponentError(null);
             
@@ -1659,9 +1675,15 @@ public class AutoTesterUI extends UI
                 return;
                 
             }
+            else if (sApplication.isEmpty()) {
+                
+                txtTestCaseApplication.setComponentError(new UserError("At least one application is mandatory"));
+                return;
+                
+            }
             
             // create test case
-            TestCase testCase = testCaseBean.createTestCase(sTitle, sDescription, sFilename, iGroupID, bAuto);
+            TestCase testCase = testCaseBean.createTestCase(sTitle, sDescription, sFilename, iGroupID, sApplication, bAuto);
             
             if (testCase != null) {                                
                 
@@ -1704,20 +1726,24 @@ public class AutoTesterUI extends UI
     * @param sDescription description
     * @param sFilename filename
     * @param iGroupID group FK
+    * @param sApplication
     * @param bAuto auto
     */
-    protected void updateTestCase(int iID, String sTitle, String sDescription, String sFilename, int iGroupID, boolean bAuto) {
+    protected void updateTestCase(int iID, String sTitle, String sDescription, String sFilename, int iGroupID, 
+                                  String sApplication, boolean bAuto) {
         
         try {
             
             StringBuilder sb = new StringBuilder();
             sb.append("updateTestCase() - params iID:").append(iID).append(", sTitle:").append(sTitle).append(", sDescription:").append(sDescription);
-            sb.append(", sFilename:").append(sFilename).append(", iGroupID:").append(iGroupID).append(", bAuto:").append(bAuto);
+            sb.append(", sFilename:").append(sFilename).append(", iGroupID:").append(iGroupID).append(", sApplication:");
+            sb.append(sApplication).append(", bAuto:").append(bAuto);
             logger.debug(sb);
             
             // form validation
             txtTestCaseID.setComponentError(null);
             txtTestCaseTitle.setComponentError(null);
+            txtTestCaseApplication.setComponentError(null);
             txtTestCaseDescription.setComponentError(null);
             txtTestCaseFilename.setComponentError(null);
             txtTestCaseGroupID.setComponentError(null);
@@ -1752,9 +1778,15 @@ public class AutoTesterUI extends UI
                 return;
                 
             }
+            else if (sApplication.isEmpty()) {
+                
+                txtTestCaseApplication.setComponentError(new UserError("At least one application is mandatory"));
+                return;                
+                
+            }
             
             // update test case
-            boolean bUpdated = testCaseBean.updateTestCase(iID, sTitle, sDescription, sFilename, iGroupID, bAuto);
+            boolean bUpdated = testCaseBean.updateTestCase(iID, sTitle, sDescription, sFilename, iGroupID, sApplication, bAuto);
             
             // reload test cases
             //if (bUpdated)
