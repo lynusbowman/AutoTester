@@ -35,7 +35,7 @@ import javax.persistence.SequenceGenerator;
     @NamedQuery(name = "getAllTestCaseGroups", 
                 query = "SELECT a FROM TestCaseGroup a ORDER BY a.sTitle"),
     @NamedQuery(name = "getTestCaseGroup",
-                query = "SELECT a FROM TestCaseGroup a WHERE a.sTitle = :title")
+                query = "SELECT a FROM TestCaseGroup a WHERE a.sTitle = :title")       
 })        
 
 public class TestCaseGroup {      
@@ -51,6 +51,9 @@ public class TestCaseGroup {
     
     @Column(name = "TITLE", nullable = false, length = 40, unique = true)
     private String sTitle; 
+    
+    @Column(name = "APPLICATIONS", nullable = false, length = 100)
+    private String sApplications;       
     
     @Column(name = "DESCRIPTION", nullable = false, length = 400)
     private String sDescription;
@@ -77,6 +80,7 @@ public class TestCaseGroup {
         
         this.iID = -1;
         this.sTitle = null;
+        this.sApplications = null;
         this.sDescription = null;
         this.sDirectory = null;
         this.createDate = null;
@@ -91,15 +95,18 @@ public class TestCaseGroup {
     * query getAllTestCaseGroups 
     * query getTestCaseGroup
     * @param sTitle TITLE - varchar(40), not null, unique 
+    * @param sApplications APPLICATIONs - varchar(100), not null
     * @param sDescription DESCRIPTION - varchar(400), not null
     * @param sDirectory DIRECTORY - varchar(100), not null, unique
     * @param createDate CREATE_DATE - date
     * @param modifyDate MODIFY_DATE - date
     * @param sNote NOTE - varchar(400)
     */      
-    public TestCaseGroup(String sTitle, String sDescription, String sDirectory, Date createDate, Date modifyDate, String sNote) {
+    public TestCaseGroup(String sTitle, String sApplications, String sDescription, String sDirectory, 
+                         Date createDate, Date modifyDate, String sNote) {
         
         this.sTitle = sTitle;
+        this.sApplications = sApplications;
         this.sDescription = sDescription;
         this.sDirectory = sDirectory;
         this.createDate = createDate;
@@ -138,6 +145,24 @@ public class TestCaseGroup {
         this.sTitle = sTitle;
         
     }
+    
+    /**  
+    * @return String
+    */
+    public String getApplications() {
+        
+        return this.sApplications;
+        
+    }
+    
+    /**  
+    * @param sApplications applications
+    */    
+    public void setApplications(String sApplications) {
+        
+        this.sApplications = sApplications;
+        
+    }    
     
     /**  
     * @return String
@@ -242,6 +267,7 @@ public class TestCaseGroup {
         StringBuilder sbTestCaseGroup = new StringBuilder();
         sbTestCaseGroup.append("ID:").append(iID);
         sbTestCaseGroup.append("|Title:").append(sTitle);
+        sbTestCaseGroup.append("|Applications:").append(sApplications);
         sbTestCaseGroup.append("|Description:").append(sDescription);
         sbTestCaseGroup.append("|Directory:").append(sDirectory);
         sbTestCaseGroup.append("|CreateDate:").append(createDate);

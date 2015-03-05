@@ -30,17 +30,17 @@ import org.w3c.dom.Element;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.ejb.Stateless;
+import javax.ejb.Stateful;
 
 /**
-* Stateless bean, manages AP database
+* Stateful bean, manages AP database
 * 
 * @author  Petr Rasek
 * @version 1.0
 * @since   2014-12-05 
 */
 
-@Stateless
+@Stateful
 public class APBean {
     
     /**********************************
@@ -310,9 +310,8 @@ public class APBean {
                 
                 // parse result                      
                 String sResultRaw = stmt.getString(3);
-                InputStream isResult = new ByteArrayInputStream(sResultRaw.getBytes());
+                InputStream isResult = new ByteArrayInputStream(sResultRaw.getBytes("UTF8"));
                 InputSource is = new InputSource(isResult);
-                is.setEncoding("ISO-8859-2"); // diacritics
                 Document xml = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(is);                
                 Element elRoot = (Element) xml.getElementsByTagName("root").item(0); 
 

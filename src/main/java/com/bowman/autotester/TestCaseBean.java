@@ -16,8 +16,7 @@ import java.util.Enumeration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.ejb.Stateless;
-import javax.ejb.Schedule;
+import javax.ejb.Stateful;
 import javax.persistence.PersistenceContext;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -37,6 +36,7 @@ import javax.mail.Transport;
 import java.sql.DriverManager;
 import java.sql.Connection;
 import java.sql.Statement;
+import java.sql.ResultSet;
 
 /**
 * Stateless bean, manages TEST database
@@ -46,7 +46,7 @@ import java.sql.Statement;
 * @since   2014-11-01 
 */
 
-@Stateless
+@Stateful
 public class TestCaseBean {
     
     /**********************************
@@ -273,17 +273,18 @@ public class TestCaseBean {
     /**
     * Create requested test case group in DB and directory
     * @param sTitle title
+    * @param sApplications applications
     * @param sDescription description
     * @param sDirectory directory
     * @return TestCaseGroup  
     */
-    public TestCaseGroup createTestCaseGroup(String sTitle, String sDescription, String sDirectory) {
+    public TestCaseGroup createTestCaseGroup(String sTitle, String sApplications, String sDescription, String sDirectory) {
         
         try {
             
             StringBuilder sb = new StringBuilder();
-            sb.append("createTestCaseGroup() - params sTitle:").append(sTitle).append(", sDescription:").append(sDescription);
-            sb.append(", sDirectory:").append(sDirectory);
+            sb.append("createTestCaseGroup() - params sTitle:").append(sTitle).append(", sApplications:").append(sApplications);
+            sb.append(", sDescription:").append(sDescription).append(", sDirectory:").append(sDirectory);
             logger.debug(sb);
             
             // duplicate check
@@ -306,7 +307,7 @@ public class TestCaseBean {
                     dir.setWritable(true, false);
                     
                     // create group
-                    testCaseGroup = new TestCaseGroup(sTitle, sDescription, sDirectory, new Date(), null, null);
+                    testCaseGroup = new TestCaseGroup(sTitle, sApplications, sDescription, sDirectory, new Date(), null, null);
                     em.persist(testCaseGroup);
                     
                     sb = new StringBuilder();
@@ -349,17 +350,18 @@ public class TestCaseBean {
     * Update requested test case group in DB
     * @param iID group PK
     * @param sTitle title
+    * @param sApplications applications
     * @param sDescription description
     * @param sDirectory directory
     * @return boolean 
     */
-    public boolean updateTestCaseGroup (int iID, String sTitle, String sDescription, String sDirectory) {
+    public boolean updateTestCaseGroup (int iID, String sTitle, String sApplications, String sDescription, String sDirectory) {
         
         try {
             
             StringBuilder sb = new StringBuilder();
-            sb.append("updateTestCaseGroup() - params iID:").append(iID).append("sTitle:").append(sTitle);
-            sb.append(", sDescription:").append(sDescription).append(", sDirectory:").append(sTitle);
+            sb.append("updateTestCaseGroup() - params iID:").append(iID).append("sTitle:").append(sTitle).append(", sApplications");
+            sb.append(sApplications).append(", sDescription:").append(sDescription).append(", sDirectory:").append(sTitle);
             logger.debug(sb);
             
             TestCaseGroup testCaseGroup = getTestCaseGroup(iID);
@@ -391,6 +393,7 @@ public class TestCaseBean {
                 
                 // update group
                 testCaseGroup.setTitle(sTitle);
+                testCaseGroup.setApplications(sApplications);
                 testCaseGroup.setDescription(sDescription);
                 testCaseGroup.setDirectory(sDirectory);
                 testCaseGroup.setModifyDate(new Date());
@@ -534,7 +537,35 @@ public class TestCaseBean {
             
         }
         
-    }    
+    }  
+    
+    /**
+    * Read auto test cases in group with ID from DB
+    * @param iGroupID group FK
+    * @return List of TestCase 
+    */
+    public List<TestCase> getAutoTestCasesInGroup(int iGroupID) {
+        
+        try {
+            
+            StringBuilder sb = new StringBuilder();
+            sb.append("getAutoTestCasesInGroup() - params iGroupID:").append(iGroupID);
+            logger.debug(sb);
+            
+            TypedQuery<TestCase> query = em.createNamedQuery("getAutoTestCasesInGroup", TestCase.class);
+            query.setParameter("group_id", iGroupID);
+            
+            return query.getResultList();            
+                        
+        }
+        catch(Exception ex) {
+            
+            logger.error("getAutoTestCasesInGroup()", ex);
+            return null;
+            
+        }
+        
+    }        
     
     /**
     * Read requested test case with ID from DB
@@ -628,19 +659,16 @@ public class TestCaseBean {
     * @param sDescription description
     * @param sFilename filename
     * @param iGroupID group FK
-    * @param sApplication application
     * @param bAuto auto
     * @return TestCase 
     */
-    public TestCase createTestCase(String sTitle, String sDescription, String sFilename, int iGroupID, String sApplication,
-                                   boolean bAuto) {
+    public TestCase createTestCase(String sTitle, String sDescription, String sFilename, int iGroupID, boolean bAuto) {
         
         try {
             
             StringBuilder sb = new StringBuilder();
             sb.append("createTestCase() - params sTitle:").append(sTitle).append(", sDescription:").append(sDescription);
-            sb.append(", sFilename:").append(sFilename).append(", iGroupID:").append(iGroupID).append(", sApplication:");
-            sb.append(sApplication).append(", bAuto:").append(bAuto);
+            sb.append(", sFilename:").append(sFilename).append(", iGroupID:").append(iGroupID).append(", bAuto:").append(bAuto);
             logger.debug(sb);
             
             // duplicate check
@@ -669,7 +697,7 @@ public class TestCaseBean {
                         file.setWritable(true, false);
                         
                         // create test case
-                        testCase = new TestCase(sTitle, sDescription, sFilename, testCaseGroup, sApplication, bAuto, 
+                        testCase = new TestCase(sTitle, sDescription, sFilename, testCaseGroup, bAuto, 
                                                 Status.NOTRUN.toString(), new Date(), null, null);
                         em.persist(testCase);
                 
@@ -725,19 +753,16 @@ public class TestCaseBean {
     * @param sDescription description
     * @param sFilename filename
     * @param iGroupID group FK
-    * @param sApplication application
     * @param bAuto auto
     * @return boolean 
     */
-    public boolean updateTestCase (int iID, String sTitle, String sDescription, String sFilename, int iGroupID, 
-                                   String sApplication, boolean bAuto) {
+    public boolean updateTestCase (int iID, String sTitle, String sDescription, String sFilename, int iGroupID, boolean bAuto) {
         
         try {
             
             StringBuilder sb = new StringBuilder();
             sb.append("updateTestCase() - params iID:").append(iID).append(", sTitle:").append(sTitle).append(", sDescrition:").append(sDescription);
-            sb.append(", sFilename:").append(sFilename).append(", iGroupID:").append(iGroupID).append(", sApplication:");
-            sb.append(sApplication).append(", bAuto:").append(bAuto);
+            sb.append(", sFilename:").append(sFilename).append(", iGroupID:").append(iGroupID).append(", bAuto:").append(bAuto);
             logger.debug(sb);
             
             TestCase testCase = getTestCase(iID);
@@ -780,7 +805,6 @@ public class TestCaseBean {
                     testCase.setDescription(sDescription);
                     testCase.setFilename(sFilename);
                     testCase.setTestCaseGroup(testCaseGroup);
-                    testCase.setApplication(sApplication);
                     testCase.setAuto(bAuto);
                     testCase.setModifyDate(new Date());
                     em.merge(testCase);
@@ -1547,54 +1571,7 @@ public class TestCaseBean {
             
         }
         
-    }      
-    
-    /**
-    * Run auto test cases
-    */
-    @Schedule(hour = "17", minute = "15")
-    public void runAutoTestCases() {
-        
-        try {
-
-            logger.info("runAutoTestCases()");
-            
-            // get auto test cases
-            List<TestCase> lstTestCases = getAutoTestCases();
-            
-            StringBuilder sb = new StringBuilder();
-            sb.append("Run ").append(lstTestCases.size()).append(" test cases");
-            logger.info(sb);
-            
-            // get environment
-            Properties properties = loadConfig();
-            String sEnvironment = properties.getProperty("autoEnvironment");
-            
-            // connect to TMON DB            
-            connectTMON();
-            
-            // run test cases
-            for (TestCase testCase : lstTestCases) {
-                
-                runTestCase(testCase.getID(), sEnvironment);
-                storeResult(testCase.getID());
-                
-            }
-            
-            // disconnect from TMON DB
-            disconnectTMON();
-            
-            // mail report
-            sendReport();
-
-        }
-        catch (Exception ex) {
-            
-            logger.error("runAutoTestCases()", ex);
-            
-        }
-        
-    }        
+    }          
     
     /**
     * Run requested test case
@@ -1608,23 +1585,25 @@ public class TestCaseBean {
 
             StringBuilder sb = new StringBuilder();
             sb.append("runTestCase() - params iID:").append(iID).append(", sEnvironment:").append(sEnvironment);
-            logger.debug(sb);
+            logger.debug(sb);             
             
             Date dStart = new Date();
             TestCase testCase = getTestCase(iID);
             
-            if (testCase != null) {              
-                
-                sb = new StringBuilder();
-                sb.append("Run test case ").append(testCase.getTitle()).append(" on environment ").append(sEnvironment);
-                logger.info(sb);                
+            if (testCase != null) {                                           
                 
                 // create initial test run
-                TestRun testRun = createTestRun(iID, sEnvironment);                
+                TestRun testRun = createTestRun(iID, sEnvironment);      
+                int iTestRunID = testRun.getID();
+                
+                sb = new StringBuilder();
+                sb.append("corrId=").append(iTestRunID).append(", Run test case ").append(testCase.getTitle());
+                sb.append(" on environment ").append(sEnvironment);
+                logger.info(sb);                  
                 
                 // run test script
                 String sStatus = runTestScript(testCase.getTestCaseGroup().getDirectory(), testCase.getFilename(),
-                                               testRun.getID(), sEnvironment);                 
+                                               iTestRunID, sEnvironment);                 
                 
                 // update test run
                 Date dFinish = new Date();
@@ -1634,10 +1613,11 @@ public class TestCaseBean {
                 if (testRun != null) {
                     
                     sb = new StringBuilder();
-                    sb.append("Test case ").append(testCase.getTitle()).append(" run with status:").append(sStatus);
+                    sb.append("corrId=").append(iTestRunID).append(", Test case ").append(testCase.getTitle());
+                    sb.append(" run with status:").append(sStatus);
                     logger.info(sb);
                     
-                    return sStatus;
+                    return sStatus; 
                     
                 }
                 else {
@@ -1654,14 +1634,14 @@ public class TestCaseBean {
             else {
                 
                 logger.error("runTestCase() - test case " + iID + " not found");
-                return Status.NOTRUN.toString();
+                return Status.NOTRUN.toString(); 
                 
             }
         }
         catch (Exception ex) {
             
             logger.error("runTestCase()", ex);
-            return Status.NOTRUN.toString();
+            return Status.NOTRUN.toString(); 
             
         }
         
@@ -1700,17 +1680,17 @@ public class TestCaseBean {
             
             // status translation
             if (iResult == 1)
-                return Status.PASSED.toString();
+                return Status.PASSED.toString(); 
             else if (iResult == 0)
-                return Status.FAILED.toString();
+                return Status.FAILED.toString(); 
             
-            return Status.FAILED.toString();
+            return Status.FAILED.toString(); 
             
         }
         catch (Exception ex) {
             
             logger.error("runTestScript()", ex);
-            return Status.FAILED.toString();
+            return Status.FAILED.toString(); 
             
         }
         
@@ -1775,7 +1755,7 @@ public class TestCaseBean {
             sbStatusReport.append("<TR><TD>Passed</TD><TD>").append(iPassed).append("</TD><TD>").append(100 * iPassed / iTotal).append("%</TD></TR>");
             sbStatusReport.append("<TR><TD>Failed</TD><TD>").append(iFailed).append("</TD><TD>").append(100 * iFailed / iTotal).append("%</TD></TR>");
             sbStatusReport.append("<TR><TD>Not run</TD><TD>").append(iNotRun).append("</TD><TD>").append(100 * iNotRun / iTotal).append("%</TD></TR>");
-            sbStatusReport.append("<TBODY></TABLE>");
+            sbStatusReport.append("</TBODY></TABLE>");
             
             sbReport.append(sbStatusReport).append(sbTestCaseReport).append("</BODY></HTML>");
             
@@ -1799,30 +1779,7 @@ public class TestCaseBean {
             
         }
         
-    }  
-    
-    /**
-    * Execute maintenance
-    */
-    @Schedule(hour = "23", minute = "15")
-    public void execMaintenance() {
-        
-        try {
-
-            logger.info("execMaintenance()");
-            
-            // delete old test runs
-            deleteOldTestRunLogs();
-            deleteOldTestRuns();
-
-        }
-        catch (Exception ex) {
-            
-            logger.error("execMaintenance()", ex);
-            
-        }
-        
-    }  
+    }      
     
     /**
     * Connect to TMON database
@@ -1884,68 +1841,176 @@ public class TestCaseBean {
     
     /**
     * Store result
-    * @param iTestCaseID test case ID
+    * @param iTestCaseGroupID test case group ID
+    * @param sEnvironment environment
     */
-    public void storeResult(int iTestCaseID) {
+    public void storeGroupResult(int iTestCaseGroupID, String sEnvironment) {
         
         try {
             
             StringBuilder sb = new StringBuilder();
-            sb.append("storeResult() - params iTestCaseID:").append(iTestCaseID);
-            logger.debug(sb);
+            sb.append("storeGroupResult() - params iTestCaseGroupID:").append(iTestCaseGroupID).append(", sEnvironment:");
+            sb.append(sEnvironment);
+            logger.debug(sb);    
             
-            // get details
-            TestCase testCase = getTestCase(iTestCaseID);
-            TestRun testRun = getTestCaseRuns(iTestCaseID).get(0);  
+            // connect to TMON
+            connectTMON();            
             
-            // test set
-            String sTestEnv = testRun.getEnvironment();
+            // get auto test cases
+            List<TestCase> lstTestCases = getAutoTestCasesInGroup(iTestCaseGroupID);
+               
+            // test set parameters  
+            TestCaseGroup testCaseGroup = getTestCaseGroup(iTestCaseGroupID);
+            String sTestEnv = sEnvironment;
             String sTestSystem = "integrationtest";
-            String sTestAppl = testCase.getApplication();
-            String sTestDescription = testCase.getTitle();
-            StringBuilder sbTestSet = new StringBuilder();
+            String sTestAppl = testCaseGroup.getApplications();
+            String sTestTitle = testCaseGroup.getTitle();
+            String sTestDescription = testCaseGroup.getDescription();
             
-            sbTestSet.append(sTestEnv).append("/").append(sTestSystem).append("/");
-            sbTestSet.append(sTestAppl).append("/").append(testCase.getTestCaseGroup().getTitle());
+            StringBuilder sbTestSet = new StringBuilder(); 
+            sbTestSet.append(sTestEnv).append("/").append(sTestSystem).append("/").append(sTestAppl);
+            sbTestSet.append("/").append(sTestTitle);
             
-            // test input 
-            List<TestData> lstTestData = getTestCaseData(iTestCaseID);
-            String sTestInput = (lstTestData.isEmpty()) ? "" : String.valueOf(lstTestData.get(0).getData());
-            
-            // test output
-            List<TestRunLog> lstTestRunLog = getTestRunLogs(testRun.getID());
+            StringBuilder sbTestInput = new StringBuilder();
             StringBuilder sbTestOutput = new StringBuilder();
             
-            for (TestRunLog testRunLog : lstTestRunLog)
-                sbTestOutput.append("RESULT:").append(testRunLog.getResult()).append(", LOG:").append(testRunLog.getLog()).append("\n");
+            StringBuilder sbTestReport = new StringBuilder();
+            StringBuilder sbTestStatusReport = new StringBuilder();
+            sbTestReport.append("<H2>Test case report</H2><TABLE><TABLE cellspacing=\"1\" cellpadding=\"1\" border=\"1\">");
+            sbTestReport.append("<THEAD><TR><TH>Title</TH><TH>Status</TH><TH>Description</TH><TH>Log</TH></TR></THEAD><TBODY>");
             
-            // data conversion
-            long lTestStartedTime = testRun.getRunDate().getTime()/1000;
-            long lTestFinishedTime = lTestStartedTime + testRun.getDuration()/1000;
-            int iTestResolution = (testRun.getStatus().equals("PASSED")) ? 0 : 1;
+            long lTestStartedTime = 0;
+            long lTestFinishedTime = 0;
+            int iFailedTests = 0;
+            int iPassedTests = 0;
+            int iNotRunTests = 0;
             
-            // execute query
+            // aggregate results 
+            int i = 0;
+            int iCnt = lstTestCases.size();
+            TestRun testRun;
+            String sStatus;
+            List<TestData> lstTestData;
+            List<TestRunLog> lstTestRunLog;
+            
+            for (TestCase testCase : lstTestCases) {
+            
+                // get run details
+                testRun = getTestCaseRuns(testCase.getID()).get(0);               
+                sStatus = testRun.getStatus();
+                
+                // test input 
+                lstTestData = getTestCaseData(testCase.getID());
+                
+                if (!lstTestData.isEmpty())
+                    sbTestInput.append(String.valueOf(lstTestData.get(0).getData())).append("\n");
+            
+                // test report
+                sbTestReport.append("<TR><TD>").append(testCase.getTitle()).append("</TD><TD>").append(sStatus);
+                sbTestReport.append("</TD><TD>").append(testCase.getDescription()).append("</TD><TD>");                
+                
+                // test output
+                sbTestOutput.append("Run test case:").append(testCase.getTitle());
+                sbTestOutput.append(" with result:").append(testRun.getStatus()).append("\n");
+                lstTestRunLog = getTestRunLogs(testRun.getID());
+            
+                for (TestRunLog testRunLog : lstTestRunLog) {
+                    
+                    sbTestOutput.append("RESULT:").append(testRunLog.getResult()).append(", LOG:").append(testRunLog.getLog()).append("\n");
+                    
+                    if (testRunLog.getResult().equals(Result.ERR.toString()))
+                        sbTestReport.append(testRunLog.getLog());
+                }
+                
+                sbTestReport.append("</TD></TR>");
+                
+                // test started time, from first test
+                if (i == 0)
+                    lTestStartedTime = testRun.getRunDate().getTime()/1000;
+                
+                // test finished time, from last test
+                if (i == iCnt-1)
+                    lTestFinishedTime = (testRun.getRunDate().getTime() + testRun.getDuration())/1000;    
+                    
+                // counters
+                if (sStatus.equals(Status.FAILED.toString())) 
+                    iFailedTests++;
+                else if (sStatus.equals(Status.PASSED.toString()))
+                    iPassedTests++;
+                else if (sStatus.equals(Status.NOTRUN.toString()))
+                    iNotRunTests++;
+                
+                i++;
+            
+            }
+            
+            // test status report
+            sbTestStatusReport.append("<HTML><BODY><H2>Status report</H2><TABLE cellspacing=\"1\" cellpadding=\"1\" border=\"1\">");
+            sbTestStatusReport.append("<THEAD><TR><TH>Type</TH><TH>Count</TH><TH>Percentage</TH></TR></THEAD><TBODY>");
+            sbTestStatusReport.append("<TR><TD>Total</TD><TD>").append(iCnt).append("</TD><TD><TD></TR>");
+            sbTestStatusReport.append("<TR><TD>Passed</TD><TD>").append(iPassedTests).append("</TD><TD>").append(100 * iPassedTests / iCnt).append("%</TD></TR>");
+            sbTestStatusReport.append("<TR><TD>Failed</TD><TD>").append(iFailedTests).append("</TD><TD>").append(100 * iFailedTests / iCnt).append("%</TD></TR>");
+            sbTestStatusReport.append("<TR><TD>Not run</TD><TD>").append(iNotRunTests).append("</TD><TD>").append(100 * iNotRunTests / iCnt).append("%</TD></TR>");
+            sbTestStatusReport.append("</TBODY></TABLE><BR><BR>");
+            
+            sbTestStatusReport.append(sbTestReport).append("</TBODY></TABLE></BODY></HTML>");
+            
+            // get record ID
             StringBuilder sbQuery = new StringBuilder();
-            sbQuery.append("INSERT INTO tmon01.test_run (test_env, test_system, test_appl, test_set, test_type, test_desc, ");
-            sbQuery.append("test_input, test_output, test_started_time, test_finished_time, test_status, test_resolution, ");
-            sbQuery.append("test_executor, test_owner, test_time_window) VALUES ('").append(sTestEnv);
-            sbQuery.append("', '").append(sTestSystem).append("', '").append(sTestAppl).append("', '").append(sbTestSet.toString());
-            sbQuery.append("', 1, '").append(sTestDescription).append("', '").append(sTestInput);
-            sbQuery.append("', '").append(sbTestOutput.toString()).append("', ").append(lTestStartedTime).append(", ");
-            sbQuery.append(lTestFinishedTime).append(", 1, ").append(iTestResolution).append(", 'Petr Rasek', 'Petr Rasek', -1)");
-            
+            sbQuery.append("SELECT test_set_id FROM tmon01.test_run WHERE test_set_path = '").append(sbTestSet.toString()).append("'");
             Statement stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery(sbQuery.toString());
+            int iTestID = (rs.next()) ? rs.getInt("test_set_id") : -1;            
+            
+            // insert new result
+            sbQuery = new StringBuilder();
+            
+            if (iTestID == -1) {
+                                
+                sbQuery.append("INSERT INTO tmon01.test_run (test_set_env, test_set_system, test_set_appl, test_set_title, test_set_path, ");
+                sbQuery.append("test_set_type, test_set_desc, test_set_input, test_set_output, test_set_report, test_set_started_time, test_set_finished_time, ");
+                sbQuery.append("test_set_status, test_set_resolution, test_set_total_tests, test_set_failed_tests, test_set_passed_tests, ");
+                sbQuery.append("test_set_executor, test_set_owner, test_set_time_window) VALUES ('").append(sTestEnv);
+                sbQuery.append("', '").append(sTestSystem).append("', '").append(sTestAppl).append("', '").append(sTestTitle);
+                sbQuery.append("', '").append(sbTestSet.toString()).append("', 1, '").append(sTestDescription).append("', '");
+                sbQuery.append(sbTestInput.toString()).append("', '").append(sbTestOutput.toString()).append("', '");
+                sbQuery.append(sbTestStatusReport.toString()).append("', ");
+                sbQuery.append(lTestStartedTime).append(", ").append(lTestFinishedTime).append(", 1, ").append(iFailedTests);
+                sbQuery.append(", ").append(iCnt).append(", ").append(iFailedTests).append(", ").append(iPassedTests);
+                sbQuery.append(", 'Petr Rasek', 'Petr Rasek', -1)");
+            
+            }
+            // update existing result
+            else {
+                
+                sbQuery.append("UPDATE tmon01.test_run SET test_set_env = '").append(sTestEnv).append("', test_set_system = '").append(sTestSystem);
+                sbQuery.append("', test_set_appl = '").append(sTestAppl).append("', test_set_title = '").append(sTestTitle);
+                sbQuery.append("', test_set_path = '").append(sbTestSet.toString()).append("', test_set_type = 1, test_set_desc = '").append(sTestDescription);
+                sbQuery.append("', test_set_input = '").append(sbTestInput.toString()).append("', test_set_output = '").append(sbTestOutput.toString());
+                sbQuery.append("', test_set_report = '").append(sbTestStatusReport.toString());
+                sbQuery.append("', test_set_started_time = ").append(lTestStartedTime).append(", test_set_finished_time = ").append(lTestFinishedTime);
+                sbQuery.append(", test_set_status = 1, test_set_resolution = ").append(iFailedTests).append(", test_set_total_tests = ").append(iCnt);
+                sbQuery.append(", test_set_failed_tests = ").append(iFailedTests).append(", test_set_passed_tests = ").append(iPassedTests);
+                sbQuery.append(", test_set_executor = 'Petr Rasek', test_set_owner = 'Petr Rasek', test_set_time_window = -1 ");
+                sbQuery.append("WHERE test_set_id = ").append(iTestID);
+
+            }
+            
+            stmt = con.createStatement();
             
             if (stmt.executeUpdate(sbQuery.toString()) == 0)
-                logger.error("storeResult() - failed to store result");
+                logger.error("storeGroupResult() - failed to store result");
+            
+            // disconnect from TMON
+            disconnectTMON();
             
         }
         catch (Exception ex) {
 
-            logger.error("storeResult()", ex);
+            logger.error("storeGroupResult()", ex);
             
         }  
         
-    }    
+    }  
     
 }

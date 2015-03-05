@@ -24,17 +24,17 @@ import org.w3c.dom.Element;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.ejb.Stateless;
+import javax.ejb.Stateful;
 
 /**
-* Stateless bean, manages CNH database
+* Stateful bean, manages CNH database
 * 
 * @author  Petr Rasek
 * @version 1.0
 * @since   2014-12-11 
 */
 
-@Stateless
+@Stateful
 public class CNHBean {
     
     /**********************************

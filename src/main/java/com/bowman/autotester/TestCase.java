@@ -41,7 +41,9 @@ import javax.persistence.SequenceGenerator;
     @NamedQuery(name = "getTestCasesInGroup",
                 query = "SELECT a FROM TestCase a WHERE a.testCaseGroup.iID = :group_id"),
     @NamedQuery(name = "getAutoTestCases",
-                query = "SELECT a FROM TestCase a WHERE a.bAuto = true")    
+                query = "SELECT a FROM TestCase a WHERE a.bAuto = true ORDER BY a.testCaseGroup, a.iID"),
+    @NamedQuery(name = "getAutoTestCasesInGroup",
+                query = "SELECT a FROM TestCase a WHERE a.testCaseGroup.iID = :group_id AND a.bAuto = true ORDER BY a.iID")       
 })
 public class TestCase {   
     
@@ -65,10 +67,7 @@ public class TestCase {
     
     @OneToOne
     @JoinColumn(name = "GROUP_FK", nullable = false)
-    private TestCaseGroup testCaseGroup;
-    
-    @Column(name = "APPLICATION", nullable = false, length = 100)
-    private String sApplication;    
+    private TestCaseGroup testCaseGroup;     
     
     @Column(name = "AUTO", nullable = false)
     private boolean bAuto;    
@@ -98,7 +97,6 @@ public class TestCase {
         this.sDescription = null;
         this.sFilename = null;
         this.testCaseGroup = null;
-        this.sApplication = null;
         this.bAuto = false;
         this.sStatus = null;
         this.createDate = null;
@@ -117,21 +115,19 @@ public class TestCase {
     * @param sDescription DESCRIPTION - varchar(400), not null
     * @param sFilename FILENAME - varchar(100), not null, unique
     * @param testCaseGroup GROUP_FK - integer, foreign key to TEST_CASE_GROUP.ID, not null
-    * @param sApplication APPLICATION - varchar(100), not null
     * @param bAuto AUTO - boolean, not null
     * @param sStatus STATUS - varchar, not null
     * @param createDate CREATE_DATE - date, not null
     * @param modifyDate MODIFY_DATE - date
     * @param sNote NOTE - varchar
     * */     
-    public TestCase(String sTitle, String sDescription, String sFilename, TestCaseGroup testCaseGroup, String sApplication,  
+    public TestCase(String sTitle, String sDescription, String sFilename, TestCaseGroup testCaseGroup,
                     boolean bAuto, String sStatus, Date createDate, Date modifyDate, String sNote) {
         
         this.sTitle = sTitle;
         this.sDescription = sDescription;
         this.sFilename = sFilename;
         this.testCaseGroup = testCaseGroup;
-        this.sApplication = sApplication;
         this.bAuto = bAuto;
         this.sStatus = sStatus;
         this.createDate = createDate;
@@ -205,25 +201,7 @@ public class TestCase {
         
         this.sFilename = sFilename;
         
-    }
-    
-    /**   
-    * @return String 
-    */
-    public String getApplication() {
-        
-        return this.sApplication;
-        
-    }
-    
-    /**  
-    * @param sApplication application
-    */      
-    public void setApplication(String sApplication) {
-        
-        this.sApplication = sApplication;
-        
-    }    
+    }   
     
     /**  
     * @return boolean
@@ -349,7 +327,6 @@ public class TestCase {
         sbTestCase.append("|Description:").append(sDescription);
         sbTestCase.append("|Filename:").append(sFilename);
         sbTestCase.append("|TestCaseGroup:").append(testCaseGroup.getTitle());
-        sbTestCase.append("|Application:").append(sApplication);
         sbTestCase.append("|Auto:").append(bAuto);
         sbTestCase.append("|Status:").append(sStatus);
         sbTestCase.append("|CreateDate:").append(createDate);

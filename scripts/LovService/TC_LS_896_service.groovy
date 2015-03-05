@@ -9,16 +9,16 @@ Utilities util = new Utilities(logID)
 DBs = ["CLF", "DWH", "AP"]
 lov = "SERVICE"
 ID = 896
-title = "Bez hranic na míru FUOM – CU/LE"
+title = "Bez hranic na mÃ­ru FUOM â€“ CU/LE"
 paramIDs = [1518, 1519, 1520, 1521, 1522, 1523, 1524, 1526, 1527, 1528, 1529, 1530, 1675, 1804, 1805, 1806]
-paramTitles = ["Cena", "Mezinárodní volání podle zóny", "Mezinárodní a národní SMS", "T-Mobile roaming -  pøíchozí, podle zóny",
-               "T-Mobile roaming – odchozí, podle zóny", "T-Mobile roaming  - SMS, podle zóny", "T-Mobile roaming – data (MB), zóna 1",
-               "Profi na Míru 1", "Profi na Míru 2", "Profi na Míru 3", "Profi na Míru 4", "Profi na Míru 5", "Mobilní internet – národní data",
-               "T-Mobile roaming – data (MB), zóny 1 a 2", "T-Mobile roaming – data (MB), zóny 1, 2 a 3", "Národní hovory"]
+paramTitles = ["Cena", "MezinÃ¡rodnÃ­ volÃ¡nÃ­ podle zÃ³ny", "MezinÃ¡rodnÃ­ a nÃ¡rodnÃ­ SMS", "T-Mobile roaming -  pÅ™Ã­chozÃ­, podle zÃ³ny",
+               "T-Mobile roaming â€“ odchozÃ­, podle zÃ³ny", "T-Mobile roaming  - SMS, podle zÃ³ny", "T-Mobile roaming â€“ data (MB), zÃ³na 1",
+               "Profi na MÃ­ru 1", "Profi na MÃ­ru 2", "Profi na MÃ­ru 3", "Profi na MÃ­ru 4", "Profi na MÃ­ru 5", "MobilnÃ­ internet â€“ nÃ¡rodnÃ­ data",
+               "T-Mobile roaming â€“ data (MB), zÃ³ny 1 a 2", "T-Mobile roaming â€“ data (MB), zÃ³ny 1, 2 a 3", "NÃ¡rodnÃ­ hovory"]
 paramDataTypes = [11, 7, 7, 7, 7, 7, 0, 7, 7, 7, 7, 7, 7, 0, 0, 7]
 paramRequired = [1] + [0]*15
 param1675Values = ["0MB", "150MB", "400MB", "1000MB", "3000MB", "8000MB", "10000MB", "30000MB", "NMB", "1500MB"]
-param1675ValueTitles = ["Ne", "150MB", "400MB", "1GB", "3GB", "8GB", "10GB", "30GB", "Neomezený", "1.5GB"]
+param1675ValueTitles = ["Ne", "150MB", "400MB", "1GB", "3GB", "8GB", "10GB", "30GB", "NeomezenÃ½", "1.5GB"]
 paramPNMValues = ["A", "N"]
 paramPNMValueTitles = ["ANO", "NE"]
 

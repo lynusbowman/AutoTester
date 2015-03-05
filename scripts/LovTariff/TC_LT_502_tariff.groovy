@@ -8,7 +8,7 @@ Utilities util = new Utilities(logID)
  **********************************/
 lov = "TARIFF"
 ID = 502
-title = "T-Mobile Autopark 48 mìs."
+title = "T-Mobile Autopark 48 mÄ›s."
 offer = "500240623"
 mf = 419f
 group = "INTERNET"

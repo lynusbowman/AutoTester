@@ -44,7 +44,7 @@ util.log("DTS " + DTSName)
 dts = util.ap.callDTS("SU", SU, DTSName)    
 assert dts != null
 assert util.check("Result", dts.result, "0") == 1
-assert util.checkLike("Warning", dts.getWarnings()[0], "na SU je aktivní Podmínìná sleva na HW")
+assert util.check("Warning", dts.getWarnings()[0], "PÅ™evod nenÃ­ moÅ¾nÃ½: na SU je aktivnÃ­Â PodmÃ­nÄ›nÃ¡ sleva na HW.")
     
 /**********************************
         Final data cleansing

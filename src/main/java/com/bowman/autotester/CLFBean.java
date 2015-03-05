@@ -29,17 +29,17 @@ import org.w3c.dom.Element;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.ejb.Stateless;
+import javax.ejb.Stateful;
 
 /**
-* Stateless bean, manages CLF database
+* Stateful bean, manages CLF database
 * 
 * @author  Petr Rasek
 * @version 1.0
 * @since   2014-12-03 
 */
 
-@Stateless
+@Stateful
 public class CLFBean {
     
     /**********************************

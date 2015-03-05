@@ -9,16 +9,16 @@ Utilities util = new Utilities(logID)
 DBs = ["CLF", "DWH", "AP"]
 lov = "SERVICE"
 ID = 312
-title = "Podmínìná sleva na HW"
+title = "PodmÃ­nÄ›nÃ¡ sleva na HW"
 paramIDs = [1810, 1811, 1812, 1813, 1814]
 paramTitles = ["IMEI", "Voucher type", "Sleva", "Tarif", "Datum aktivace"]
 paramDataTypes = [7, 7, 0, 0, 7]
 paramRequired = [1, 1, 1, 1, 0]
 param1811Values = ["10020", "10021", "10022"]
 param1812Values = ["1150", "2300", "3000"]
-param1812ValueTitles = ["1150 Kè s DPH", "2300 Kè s DPH", "3000 Kè s DPH"]
+param1812ValueTitles = ["1150 KÄ s DPH", "2300 KÄ s DPH", "3000 KÄ s DPH"]
 param1813Values = ["437", "433"]
-param1813ValueTitles = ["Mobilní internet 3GB", "S námi sí nesí"]
+param1813ValueTitles = ["MobilnÃ­ internet 3GB", "S nÃ¡mi sÃ­Å¥ nesÃ­Å¥"]
 
 try {
 

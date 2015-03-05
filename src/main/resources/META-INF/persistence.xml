@@ -5,12 +5,18 @@
     <jta-data-source>jdbc/TestDS</jta-data-source>
     <class>com.bowman.autotester.TestCaseGroup</class>
     <class>com.bowman.autotester.TestCase</class>  
+    <class>com.bowman.autotester.TestRun</class>
+    <class>com.bowman.autotester.TestRunLog</class>  
+    <class>com.bowman.autotester.TestData</class>    
     <properties>
       <property name="eclipselink.target-database" value="DERBY"/>
-      <property name="eclipselink.ddl-generation" value="create-tables"/>
+      <property name="eclipselink.ddl-generation" value="create-or-extend-tables"/>
       <property name="eclipselink.logging.level" value="INFO"/>
       <property name="javax.persistence.jdbc.driver" value="org.apache.derby.jdbc.ClientDriver"/>
-      <property name="javax.persistence.jdbc.url" value="jdbc:derby://localhost:1519/TEST;create=true"/>
+      <!--PROD-->
+      <!--property name="javax.persistence.jdbc.url" value="jdbc:derby://localhost:1527/TEST;create=true"/-->
+      <!--DEV-->
+      <property name="javax.persistence.jdbc.url" value="jdbc:derby://localhost:1519/TEST;create=true"/>      
       <property name="javax.persistence.jdbc.user" value="APP"/>
       <property name="javax.persistence.jdbc.password" value="APP"/>
     </properties>

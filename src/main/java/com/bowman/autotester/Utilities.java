@@ -663,7 +663,7 @@ public class Utilities {
         try {
             
             StringBuilder sb = new StringBuilder();
-            sb.append("checkLike() - corrId=").append(iLogID).append("params sLog:").append(sLog).append(", oValue:").append(oValue);
+            sb.append("checkLike() - corrId=").append(iLogID).append(" params sLog:").append(sLog).append(", oValue:").append(oValue);
             sb.append(", oCheck:").append(oCheck);
             logger.info(sb);
             
@@ -671,7 +671,7 @@ public class Utilities {
             if (oValue != null && String.valueOf(oValue).indexOf(String.valueOf(oCheck)) > 0) {
                 
                 sb = new StringBuilder();
-                sb.append("Check ").append(sLog).append(" - ").append(oValue).append(" like").append(oCheck);
+                sb.append("Check ").append(sLog).append(" - ").append(oValue).append(" like ").append(oCheck);
                 log(Result.OK, sb.toString());
                 
                 return 1;
@@ -681,7 +681,7 @@ public class Utilities {
             else {
                 
                 sb = new StringBuilder();
-                sb.append("Failed check ").append(sLog).append(" - ").append(oValue).append(" like").append(oCheck);
+                sb.append("Failed check ").append(sLog).append(" - ").append(oValue).append(" like ").append(oCheck);
                 log(Result.ERR, sb.toString());
                 
                 return 0;
@@ -693,7 +693,7 @@ public class Utilities {
             
             logger.error("checkLike()", ex);
             StringBuilder sb = new StringBuilder();
-            sb.append("Failed to check ").append(oValue).append(" like").append(oCheck);
+            sb.append("Failed to check ").append(oValue).append(" like ").append(oCheck);
             log(Result.ERR, sb.toString());
             
             return 0;
@@ -755,7 +755,7 @@ public class Utilities {
             sb.append("getTestData() - corrId=").append(iLogID).append(", params sEnvironment:").append(sEnvironment);
             logger.info(sb);
             
-            if (sEnvironment.equals("TEST 1") || sEnvironment.equals("TEST 2")) {
+            if (sEnvironment.equals("test1") || sEnvironment.equals("test2")) {
                        
               int iData = testCaseBean.getTestData(iLogID, sEnvironment).get(0).getData();
               

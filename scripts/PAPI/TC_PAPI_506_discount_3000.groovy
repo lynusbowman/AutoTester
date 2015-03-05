@@ -43,12 +43,14 @@ papi = util.clf.callPAPI(level, SU, ID, "G")
 assert papi != null
 
 now = new GregorianCalendar()
-dctDate = now.get(Calendar.YEAR)+(attrValues[0]/12) + "" + now.get(Calendar.MONTH)+1 + "" + now.get(Calendar.DATE) + "000001"
+month = now.get(Calendar.MONTH)+1
+if (month < 10) {month = "0" + month}
+dctDate = now.get(Calendar.YEAR)+(attrValues[0]/12) + "" + month + "" + now.get(Calendar.DATE) + "000001"
 assert util.check("Get after activation", [papi.getStatus(), papi.getAttr(attrIDs[1]), papi.getAttr(attrIDs[2]), 
                                            papi.getAttr(attrIDs[3]), papi.getAttr(1743), papi.getAttr(1744)],
                                           ["a", attrValues[1], attrValues[2], attrValues[3], "3000", dctDate]) == 1  
 
-actDate = now.get(Calendar.DATE) + "." + now.get(Calendar.MONTH)+1 + "." + now.get(Calendar.YEAR)    
+actDate = now.get(Calendar.DATE) + "." + month + "." + now.get(Calendar.YEAR)    
 for (i in 0 .. 1) {
     
   if (i == 0) {

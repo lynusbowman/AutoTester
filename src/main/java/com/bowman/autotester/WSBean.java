@@ -16,7 +16,7 @@ import java.util.Properties;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.ejb.Stateless;
+import javax.ejb.Stateful;
 
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPMessage;
@@ -33,14 +33,14 @@ import org.w3c.dom.Node;
 import org.w3c.dom.Element;
 
 /**
-* Stateless bean, manages web services
+* Stateful bean, manages web services
 * 
 * @author  Petr Rasek
 * @version 1.0
 * @since   2014-12-19 
 */
 
-@Stateless
+@Stateful
 public class WSBean {
     
     /**********************************

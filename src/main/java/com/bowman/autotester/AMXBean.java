@@ -18,17 +18,17 @@ import java.sql.ResultSet;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.ejb.Stateless;
+import javax.ejb.Stateful;
 
 /**
-* Stateless bean, manages AMX database
+* Stateful bean, manages AMX database
 * 
 * @author  Petr Rasek
 * @version 1.0
 * @since   2014-12-05 
 */
 
-@Stateless
+@Stateful
 public class AMXBean {
     
     /**********************************
